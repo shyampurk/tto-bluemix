@@ -1,0 +1,13 @@
+---
+applications:
+- name: TTOSERVER
+  memory: 64M
+  instances: 1
+  timeout: 180
+  no-route: true
+  
+
+
+
+
+
