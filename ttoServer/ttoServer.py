@@ -130,10 +130,10 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 				DesiredArrivalTimeIndexInList = time.index(time[i])
 						
 		try:
-			print DesiredArrivalTimeIndexInList
+			# print DesiredArrivalTimeIndexInList
 				
-			print time[DesiredArrivalTimeIndexInList]
-			print realtimeinminutes[DesiredArrivalTimeIndexInList]	
+			# print time[DesiredArrivalTimeIndexInList]
+			# print realtimeinminutes[DesiredArrivalTimeIndexInList]	
 				
 			pred_minutes = []
 			for i in range(len(timediffinminutes)):
@@ -142,11 +142,11 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 
 			'''DISCUSSED METHOD'''
 			startpointIndex = int(DesiredArrivalTimeIndexInList-(theorytimeinminutes/10))
-			print startpointIndex
-			print time[startpointIndex]
-			print realtimeinminutes[startpointIndex]
-			print pred_minutes[startpointIndex]
-			print timediffinminutes[startpointIndex]
+			# print startpointIndex
+			# print time[startpointIndex]
+			# print realtimeinminutes[startpointIndex]
+			# print pred_minutes[startpointIndex]
+			# print timediffinminutes[startpointIndex]
 
 			i = startpointIndex
 			recommendationFlag = True
@@ -169,28 +169,31 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 
 				
 				if (diff_minutes == 0): #This condition is the top priority
-					recommendationResult.update({"onTime":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"you will reach ontime","diffMinutes":diff_minutes}})		
+					pred_minutesReal = pred_minutes[i]-reminminutes
+					recommendationResult.update({"onTime":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"you will reach ontime","pred_minutesReal":pred_minutesReal}})		
 					recommendationFlag = False
 
 				elif (0<=diff_minutes<=10):
+					pred_minutesReal = pred_minutes[i]-reminminutes
 					if(time[i] not in checkedOnce):
 						
 						checkedOnce.append(time[i])
-						recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"you will be %s min Early"%(abs(diff_minutes)),"diffMinutes":diff_minutes}})
+						recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"you will be %s min Early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
 						i+=1#This line should be here
 					else:
-						recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"you will be %s min Early"%(abs(diff_minutes)),"diffMinutes":diff_minutes}})
+						recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"you will be %s min Early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
 						recommendationFlag = False
 				
 
 				else:
+					pred_minutesReal = pred_minutes[i]-reminminutes
 					if (time[i] not in checkedOnce):
 						
 						checkedOnce.append(time[i])
-						recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"you will be %s min Late"%(abs(diff_minutes)),"diffMinutes":diff_minutes}})		
+						recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"you will be %s min Late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
 						i-=1 #This line should be here
 					else:
-						recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"you will be %s min Late"%(abs(diff_minutes)),"diffMinutes":diff_minutes}})		
+						recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"you will be %s min Late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
 						recommendationFlag = False
 
 					
@@ -349,6 +352,25 @@ def stopJourney(stpCid):
 	print beforeJourneyClientList
 	print client_data
 
+def recommendationAlert(recommtime,cid,pred_minutesReal):
+	recommendationAlertPredictions = []
+	recommendationAlertTime = []
+	cursor = newttobackground.ttoresultcoll.find({"route":client_data[cid]['routeName']})
+	
+	for doc in cursor:
+		recommendationAlertPredictions.append(doc['predictioninmins'])
+		recommendationAlertTime.append(doc['time'])
+	if recommtime in recommendationAlertTime:
+		recommendationAlertIndex = recommendationAlertTime.index(recommtime)
+	
+	val = float(recommendationAlertPredictions[recommendationAlertIndex])
+	if pred_minutesReal == val:
+		return "same",0
+	else:
+		diff = abs(pred_minutesReal)-val
+		return "notsame",diff
+
+
 
 
 def beforeJourney():
@@ -380,48 +402,31 @@ def beforeJourney():
 							
 							
 							existedRecommendation = beforeJourneyClientList[cid]["recommendedDepTime"]
-							existeddiffMinutes = beforeJourneyClientList[cid]["diffMinutes"]
+							existedpredminutesReal = beforeJourneyClientList[cid]["pred_minutesReal"]
 
-							# if you call this function in the beginning even if there is no change client will get the message
-							# so if i write this here i have to call the publish function in the before function once the flag is set if the recommendation has changed
-							pub_dict,recommendedDepTimeAlgoFunc = recommendationAlgoFunc(arrivalTime,cid)#calling the recommendation algorithm function
-							recommTime = beforeJourneyClientList[cid]["recommendedDepTime"]
-							recommTime = recommTime.replace(tzinfo=None)
+							existedRecommendation = existedRecommendation.replace(tzinfo=None)
 							
-							for i in range(len(recommendedDepTimeAlgoFunc)):
-								if str(recommTime) == recommendedDepTimeAlgoFunc[i]:
-									index = recommendedDepTimeAlgoFunc.index(str(recommTime))
-									if beforeJourneyClientList[cid]["diffMinutes"]  == pub_dict["recommendation"][index]["diffMinutes"]:
-										localDict.update({"recommndsentproceed":False})
-										# means no new recommendation 
-										localDict.update({"everyTenminproceed":False})
-										# means comeback after 10 mins
-										break
-									else:
-										localDict.update({"recommndsentproceed":True})
-										# means new recommendation
-										localDict.update({"everyTenminproceed":False})
-										# means comeback after 10mins
+							result,val = recommendationAlertFunc(existedRecommendation,cid,existedpredminutesReal)
+							
+							if result == "notsame":
+								localDict.update({"recommndsentproceed":True})
+								# means new recommendation
+								localDict.update({"everyTenminproceed":False})
+								# means comeback after 10mins
 
-										# sending only updated recommendation 
-										recommresult = [pub_dict["recommendation"][index]]
-
-										pub_dict.update({"responseType":3,"recommendation":recommresult})
-										publish_handler(cid,pub_dict)
-										break
-								else:
-									if i == len(recommendedDepTimeAlgoFunc)-1:
-										localDict.update({"recommndsentproceed":True})
-										# means new recommendation
-										localDict.update({"everyTenminproceed":False})
-										# means comeback after 10mins
+								if val < 0:
+									message = {"responseType":3,"message":"You can start %smin Late"%(abs(val))}
+								if val > 0:	
+									message = {"responseType":3,"message":"You should start %smin Early"%(val)}
+								print message
+								publish_handler(cid,message)
+							else:
+								# localDict.update({"recommndsentproceed":False})
+								# # means new recommendation
+								localDict.update({"everyTenminproceed":False})
+								# means comeback after 10mins
+								pass
 										
-										pub_dict.update({"responseType":3})
-										publish_handler(cid,pub_dict)
-										break
-
-								
-
 							
 							# now Alerts
 							localDict.update({"recommndsentproceed":True})
