@@ -13,7 +13,7 @@ client = MongoClient(uri)
 newttobackground = client.newttobackground
 
 
-print 'Select the route'
+print '\n\tSelect the route'
 print ("\n\t1 -->NEWARK-EDISON \n\t2-->BROOKLYN-DENVILLE \n\t3-->MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL")
 route = int(raw_input("\n\tEnter the value 1/2/3 ::"))
 induceTime = raw_input("\n\tEnter the Time ::")

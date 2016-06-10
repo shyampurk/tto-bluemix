@@ -1,0 +1,129 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+		<title>TTO</title>
+		<meta charset="utf-8"/>
+	    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+	    <link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.5.min.css"/>
+	    <link rel="stylesheet" type="text/css" href="css/jquery.datetimepicker.css"/ >
+	    <link rel="stylesheet" type="text/css" href="css/index.css"/ >
+	    <link rel="stylesheet" type="text/css" href="css/flipclock.css">
+	    <script src="lib/pubnub-3.14.5.min.js"></script>
+	    <script src="lib/jquery-2.2.4.min.js"></script>
+	    <script src="lib/jquery.mobile-1.4.5.min.js"></script>
+		<script src="lib/jquery.datetimepicker.full.min.js"></script>
+     	<script src="lib/flipclock.js"></script>
+     	<script src="lib/moment.min.js"></script>
+     	<script src="lib/moment-duration-format.js"></script>
+     	<script src="lib/moment-timezone/builds/moment-timezone-with-data-2010-2020.min.js"></script>
+	</head>
+	
+	<body>
+		<div data-role="page" id="mainpage">
+			<div data-role="header" data-theme="b">
+				<h4>Travel Time </br> Optimizer</h4>
+			</div></br>
+			
+			<div class="container">
+				<div data-role="main">
+					<form id="form">
+						<div class="form-main-style">
+							<div class="form-style">
+		                    	<label for="route">Select Route</label>
+		                    </div>
+	                        <select id="selectRoute" class="opts">
+	                            <option selected="selected" value="select">select</option>
+	                            <option value="NEWARK-EDISON">NEWARK-EDISON</option>
+	                            <option value="BROOKLYN-DENVILLE">BROOKLYN-DENVILLE</option>
+	                            <option value="MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL">MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL</option>
+	                        </select></br>
+	                        <div class= "form-style">
+	                        	<label for="arrivalTime">Desired Arrival Time</label>
+	                        </div>
+	                        <input id="datetimepicker" type="text" placeholder="YYYY-MM-DD HH:MM:SS" name="arrTime"/></br></br></br>
+                    	</div>
+                        <div align="center">
+	                        <input data-role="none" id="register" value="Submit" type="button" disabled="disabled" onclick="app.registerRoute()"></br>
+							<input data-role="none" value="Reset" type="reset" onclick="app.resetRecommendation()"></br>
+						</div>
+	                </form>
+	                <script type="text/javascript">
+							jQuery('#datetimepicker').datetimepicker({
+							  	format:'Y-m-d H:i:s',
+							  	step:10
+							});
+							
+						$(document).ready(function(){
+							$('#datetimepicker').on('input change', function () {
+					            if ($(this).val() != '') {
+					                $('#register').prop('disabled', false);
+					            }
+					            else {
+					                $('#register').prop('disabled', true);
+					            }
+					        });
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+
+		<div data-role="page" id="secondpage">
+			<div data-role="header" data-theme="b">
+				<a href="#" id="backButton" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-btn-icon-notext ui-icon-back" data-inline="true" onclick="app.backButton()">back</a>
+				<h4>Travel Time <br> Optimizer</h4>
+			</div>
+			<div class="container">
+				<div data-role="main">
+					<div>
+						<div class="form-main-style">
+							<div class="form-style">
+								<label for="route">Route</label>
+							</div>
+							<label><a id="selectedRoute"></a></label></br>
+							<div class="form-style">
+								<label for="arrivalTime">Desired Arrival Time</label>
+							</div>
+							<label><a id="arrTime"></a></label></br>
+							<label for="recommendation">Recommended<br>Departure Time</label>
+						</div>
+						<div>
+							<label><a id="timeuntilDeparture"></a></label>
+						</div>
+						<div id="journeyTrackRecommendList" class="journeyTrackRecommendList"></div>	
+					</div>
+				</div>
+			</div>
+		</div>
+		<div data-role="page" id="popuppage">
+			
+            <div id="journeytrackingCounter" style="display: none;">
+            	<h4>Time Until Departure</h4>
+            	<div class="clock" style="margin:0.5em;"></div>
+            	<input data-role="none"  id="Cancel" value="Cancel" type="button" onclick="app.back()">
+            	<input data-role="none" id="StartNow" value="Start Now" type="button" onclick="app.startNow()">
+            </div>
+
+            <div id="journeytrackingPhase" style="display: none;">
+            	<h4>Journey Started</h4>
+            	<label>From :<a id="pointA"></a></label>
+                <label>To :<a id="pointB"></a></label>
+                <input data-role="none" id="endJourney" value="End Journey" type="reset" onclick="app.endJourney()">
+            </div>
+
+            <div id="accidentNotification" style="display: none;">
+            	<p style="color: red;">Accident Alert !!!<img src="img/close.png" id="dismissAccidentNotification" align="right" style="padding:0px 5px 0px;"/></p>
+            	<p id="accidentNotificationMessage"></p>
+			</div>
+			<div id="recommendationNotification" style="display: none;">
+            	<p style="color: red;">Recommendation Alert !!!<img src="img/close.png" id="dismissRecommendationNotification" align="right" style="padding:0px 5px 0px;"/></p>
+            	<p id="recommendationNotificationMessage"></p>
+			</div>
+			<div id="timeNotInRangeNotification" style="display: none;">
+            	<p style="color: black;">Time Not in Range Alert !!!<img src="img/close.png" id="dismissTimeNotInRangeNotification" align="right" style="padding:0px 5px 0px;"/></p>
+            	<p id="timeNotInRangeNotificationMessage"></p>
+			</div>
+		</div>
+		<script src="js/index.js"></script>
+	</body>
+</html>

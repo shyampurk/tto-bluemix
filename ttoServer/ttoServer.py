@@ -200,7 +200,7 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 			for val in recommendationResult.keys():
 				recommresult.append(recommendationResult[val])
 			
-			pub_dict = {"responseType":3,"route_name":client_data[clientID]['routeName'],"arrival_time":str(DesiredArrivalTime),"recommendation":recommresult}
+			pub_dict = {"responseType":1,"route_name":client_data[clientID]['routeName'],"arrival_time":str(DesiredArrivalTime),"recommendation":recommresult}
 			publish_handler(client_data[clientID]["clientID"],pub_dict)
 			
 					
@@ -362,9 +362,9 @@ def beforeJourney():
 					presentrouteTime =  datetime.datetime.now(pytz.timezone(localDict['timeZone']))
 
 					recommendedTime = beforeJourneyClientList[cid]["recommendedDepTime"]
-					recommendedTime = (recommendedTime,"%Y-%m-%d %H:%M:%S")
-					zone = pytz.timezone(localDict["timeZone"])
-					recommendedTime = zone.localize(recommendedTime)
+					# recommendedTime = (recommendedTime,"%Y-%m-%d %H:%M:%S")
+					# zone = pytz.timezone(localDict["timeZone"])
+					# recommendedTime = zone.localize(recommendedTime)
 					
 					diff = recommendedTime-presentrouteTime 
 					diffMin = (diff.days * 24 * 60) + (diff.seconds/60)
