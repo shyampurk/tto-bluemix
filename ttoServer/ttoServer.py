@@ -352,7 +352,7 @@ def stopJourney(stpCid):
 	print beforeJourneyClientList
 	print client_data
 
-def recommendationAlert(recommtime,cid,pred_minutesReal):
+def recommendationAlertFunc(recommtime,cid,pred_minutesReal):
 	recommendationAlertPredictions = []
 	recommendationAlertTime = []
 	cursor = newttobackground.ttoresultcoll.find({"route":client_data[cid]['routeName']})
