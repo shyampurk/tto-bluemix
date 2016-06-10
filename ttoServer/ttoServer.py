@@ -414,9 +414,9 @@ def beforeJourney():
 								localDict.update({"everyTenminproceed":False})
 								# means comeback after 10mins
 
-								if val < 0:
+								if val > 0:
 									message = {"responseType":3,"message":"You can start %smin Late"%(abs(val))}
-								if val > 0:	
+								if val < 0:	
 									message = {"responseType":3,"message":"You should start %smin Early"%(val)}
 								print message
 								publish_handler(cid,message)
