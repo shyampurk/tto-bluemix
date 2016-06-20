@@ -109,7 +109,7 @@ def sfalgo(date,induceTime,induceWeather,induceTemparature):
 			induceTimeIndex = []
 			for i in range(len(induceTime)):	
 				for j in range(len(sfDates)):
-					if neDates[j] == induceTime[i]:
+					if sfDates[j] == induceTime[i]:
 						induceTimeIndex.append(sfDates.index(induceTime[i]))
 						break
 			for i in range(len(induceTimeIndex)):	

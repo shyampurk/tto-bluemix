@@ -40,8 +40,8 @@ var app = {
             document.getElementById('arrTime').innerHTML =Server_message.arrival_time;
             var recommendation = Server_message.recommendation;
             console.log(recommendation)
-            var diffMinutes_0 = recommendation[0].diffMinutes
-            console.log(diffMinutes_0)
+            var pred_minutesReal_0 = recommendation[0].pred_minutesReal
+            console.log(pred_minutesReal_0)
             if (recommendation.length <= 0){
                 alert("No Recommendation for the selected time !!!");
                 $("#backButton").click();
@@ -55,31 +55,32 @@ var app = {
                 $("#recommendation_0").click(function(e){
                       var rec_depTime_0 = document.getElementById("recommendation_hTag_0").innerHTML
                       var predArrTime_0 = document.getElementById("predArrTime_0").innerHTML
-                      var diffMinutes = recommendation[0].diffMinutes
-                      app.openpopup(rec_depTime_0,selectedRoute,diffMinutes);
+                      var pred_minutesReal = recommendation[0].pred_minutesReal
+                      app.openpopup(rec_depTime_0,selectedRoute,pred_minutesReal);
                       return false;
                 });
                 $("#recommendation_1").click(function(e){
                       var rec_depTime_1 = document.getElementById("recommendation_hTag_1").innerHTML
                       var predArrTime_1 = document.getElementById("predArrTime_1").innerHTML
-                      var diffMinutes = recommendation[1].diffMinutes
-                      app.openpopup(rec_depTime_1,selectedRoute,diffMinutes);
+                      var pred_minutesReal = recommendation[1].pred_minutesReal
+                      app.openpopup(rec_depTime_1,selectedRoute,pred_minutesReal);
                       return false;
                 });
                 $("#recommendation_2").click(function(e){
                       var rec_depTime_2 = document.getElementById("recommendation_hTag_2").innerHTML
                       var predArrTime_2 = document.getElementById("predArrTime_2").innerHTML
-                      var diffMinutes = recommendation[2].diffMinutes
-                      app.openpopup(rec_depTime_2,selectedRoute,diffMinutes);
+                      var pred_minutesReal = recommendation[2].pred_minutesReal
+                      app.openpopup(rec_depTime_2,selectedRoute,pred_minutesReal);
                       return false;
                 });
             });
         
     },
 
-    openpopup: function(rec_depTime,selectedRoute,diffMinutes){
+    openpopup: function(rec_depTime,selectedRoute,pred_minutesReal){
         console.log(rec_depTime)
-        var selectedRecommendaionMessage = {"CID":CID,"requestType":4,"recommendedDepTime":rec_depTime ,"diffMinutes":diffMinutes};
+        var selectedRecommendaionMessage = {"CID":CID,"requestType":4,"recommendedDepTime":rec_depTime ,"pred_minutesReal":pred_minutesReal};
+        console.log(selectedRecommendaionMessage)
         app.publish(selectedRecommendaionMessage);
         g_selectedRoute = selectedRoute
         g_routePoints = g_selectedRoute.split("-");
@@ -230,9 +231,9 @@ var app = {
                             $("#recommendationNotification").fadeOut("fast");
                             $("#accidentNotification").fadeOut("fast");
                             $("#recommendationNotification").fadeIn("slow");
-                            $("#recommendationNotificationMessage").replaceWith('<p id="recommendationNotificationMessage">DepTime :'+g_message.recommendation[0].predictedDepartureTime+"<br>arrivalTime:"+g_message.recommendation[0].predictedArrivalTime+"<br>"+g_message.recommendation[0].dep_note+'</p>');
+                            $("#recommendationNotificationMessage").replaceWith('<p id="recommendationNotificationMessage">message :'+g_message.message+'</p>');
                             $("#dismissRecommendationNotification").click(function(e){
-                                $("#recommendationNotification").fadeOut("fast");
+                            $("#recommendationNotification").fadeOut("fast");
                             });
                     });
                 }

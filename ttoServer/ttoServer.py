@@ -101,7 +101,8 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 	realtimeinminutes = []
 	time = []
 	realtimeinsec = []
-	cursor = newttobackground.ttoresultcoll.find({"route":client_data[clientID]['routeName']})
+	cursor = newttobackground.ttoresultcoll.find({"route":client_data[clientID]['routeName']}).sort('time', pymongo.ASCENDING).limit(150)
+	
 	if (0<=hour <= 12 and day < 1 and day >= -1):
 		print day,hour
 		proceed = True
@@ -124,16 +125,17 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 			timediffinsecs.append((((float(i)-(theorytimeinsecs)))+reminsecs))
 			timediffinminutes.append((((float(j)-(theorytimeinminutes)))+reminminutes))
 		
-		
+		print time
 		for i in range(len(time)):
+			print "time values --> ",time[i]
 			if (int(DesiredArrivalTime.strftime("%H")) == int(time[i].strftime("%H")) and int(DesiredArrivalTime.strftime("%M")) == int(time[i].strftime("%M"))):
 				DesiredArrivalTimeIndexInList = time.index(time[i])
 						
 		try:
-			# print DesiredArrivalTimeIndexInList
+			print DesiredArrivalTimeIndexInList
 				
-			# print time[DesiredArrivalTimeIndexInList]
-			# print realtimeinminutes[DesiredArrivalTimeIndexInList]	
+			print time[DesiredArrivalTimeIndexInList]
+			print realtimeinminutes[DesiredArrivalTimeIndexInList]	
 				
 			pred_minutes = []
 			for i in range(len(timediffinminutes)):
@@ -142,11 +144,13 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 
 			'''DISCUSSED METHOD'''
 			startpointIndex = int(DesiredArrivalTimeIndexInList-(theorytimeinminutes/10))
-			# print startpointIndex
-			# print time[startpointIndex]
-			# print realtimeinminutes[startpointIndex]
-			# print pred_minutes[startpointIndex]
-			# print timediffinminutes[startpointIndex]
+			
+			print DesiredArrivalTimeIndexInList
+			print startpointIndex
+			print time[startpointIndex]
+			print realtimeinminutes[startpointIndex]
+			print pred_minutes[startpointIndex]
+			print timediffinminutes[startpointIndex]
 
 			i = startpointIndex
 			recommendationFlag = True
@@ -414,9 +418,9 @@ def beforeJourney():
 								localDict.update({"everyTenminproceed":False})
 								# means comeback after 10mins
 
-								if val < 0:
+								if val > 0:
 									message = {"responseType":3,"message":"You can start %smin Late"%(abs(val))}
-								if val > 0:	
+								if val < 0:	
 									message = {"responseType":3,"message":"You should start %smin Early"%(val)}
 								print message
 								publish_handler(cid,message)
@@ -526,7 +530,7 @@ def tto_callback(message,channel):
 			zone = pytz.timezone(client_data[clientID]["timeZone"])
 			recommendedDepTime = zone.localize(recommendedDepTime)
 			
-			beforeJourneyClientList[clientID] = {"clientID":clientID,"recommendedDepTime":recommendedDepTime,"diffMinutes":message['diffMinutes']}				
+			beforeJourneyClientList[clientID] = {"clientID":clientID,"recommendedDepTime":recommendedDepTime,"pred_minutesReal":message['pred_minutesReal']}				
 			
 
 			print beforeJourneyClientList,"we got the confirmation"
