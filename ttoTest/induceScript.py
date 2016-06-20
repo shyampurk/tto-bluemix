@@ -122,41 +122,6 @@ if route == 2:
 		
 		print "\n DENVILLE",ddate,"-->","weathercode:",dcode,"maxTemparature:",dhigh,"minTemparature:",dlow,"avgTemparature:",davg
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 print '\n\t Select the weather'
 print '\n\t-----------------------------------------------------------------------------------------------------------------------'
 print "0 -->tornado\t1 -->tropical storm\t2-->hurricane\t3-->severe thunderstorms\t4-->thunderstorms\t5-->mixed rain and snow\n\n6-->mixed rain and sleet\t7-->mixed snow and sleet\t8-->freezing drizzle\t9-->drizzle\t10-->freezing rain\n\n11-->showers\t12-->showers\t13-->snow flurries\t14-->light snow showers\t15-->blowing snow\n\n16-->snow\t17-->hail\t18-->sleet\t19-->dust\t20-->foggy\n\n21-->haze\t22-->smoky\t23-->blustery\t24-->windy\t25-->cold\n\n26-->cloudy\t27-->mostly cloudy (night)\t28-->mostly cloudy (day)\t29-->partly cloudy (night)\t30-->partly cloudy (day)\n\n31-->clear (night)\t32-->sunny\t33-->fair (night)\t34-->fair (day)\t35-->mixed rain and hail\n\n36-->hot\t37-->isolated thunderstorms\t38-->scattered thunderstorms\t39-->scattered thunderstorms\t40-->scattered showers\n\n41-->heavy snow\t42-->scattered snow showers\t43-->heavy snow\t44-->partly cloudy\t45-->thundershowers\n\n46-->snow showers\t47-->isolated thundershowers"
