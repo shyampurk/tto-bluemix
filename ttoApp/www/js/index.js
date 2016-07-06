@@ -25,7 +25,7 @@ var app = {
     registerRoute: function() {
         $(document).ready(function(){   
             $(':mobile-pagecontainer').pagecontainer('change', $('#secondpage'));        
-            var routeID = document.getElementById("selectRoute").value;
+            var routeID = document.getElementById("SelectRoute").value;
             var arrivalTime = document.getElementById("datetimepicker").value;
             var getrouteMessage = {"CID":CID,"requestType":1,"routeName":routeID,"arrivalTime":arrivalTime};
             app.publish(getrouteMessage);
@@ -37,6 +37,21 @@ var app = {
     recommendation: function (Server_message) {
         $(document).ready(function(){ 
             document.getElementById('selectedRoute').innerHTML = Server_message.route_name;
+
+            //EDITED THIS LINE
+            if (Server_message.route_name == "NEWARK-EDISON"){
+                document.getElementById('selectedRoute').innerHTML = "NEWARK To EDISON";
+                 }
+            else if(Server_message.route_name == "BROOKLYN-DENVILLE"){
+                 document.getElementById('selectedRoute').innerHTML = "BROOKLYN To DENVILLE";
+               
+            }
+            else if (Server_message.route_name =="MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL"){
+                document.getElementById('selectedRoute').innerHTML = "MOUNTZION RADIOLOGY CENTER To SF GENERAL HOSPITAL";
+           
+            }//TILL HERE
+            
+
             document.getElementById('arrTime').innerHTML =Server_message.arrival_time;
             var recommendation = Server_message.recommendation;
             console.log(recommendation)
@@ -48,7 +63,9 @@ var app = {
             }
             else{
                 for(var i = 0; i < recommendation.length; i++) {
-                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgrey;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'"DepTime :>'+recommendation[i].predictedDepartureTime+'</h5><p id="predArrTime_'+i+'" arrivalTime :>'+recommendation[i].predictedArrivalTime+'</p><p id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</p></div>');
+                    //EDITED THIS LINE
+                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgrey;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'"DepTime :> PredictedDepartureTime :'+recommendation[i].predictedDepartureTime+'</h5><p id="predArrTime_'+i+'" arrivalTime :> PredictedArrivalTime :'+recommendation[i].predictedArrivalTime+'</p><p id="recommendation_ptag'+i+'"> Departure note :'+recommendation[i].dep_note+'</p></div>');
+                
                 }
             }
             var selectedRoute = document.getElementById('selectedRoute').innerHTML   
@@ -83,7 +100,9 @@ var app = {
         console.log(selectedRecommendaionMessage)
         app.publish(selectedRecommendaionMessage);
         g_selectedRoute = selectedRoute
-        g_routePoints = g_selectedRoute.split("-");
+        // g_routePoints = g_selectedRoute.split("-");
+        g_routePoints = g_selectedRoute.split("To"); //NEWLINE
+        
         console.log(g_selectedRoute)
             $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
             $("#journeytrackingCounter").fadeIn("fast").append(function(){app.timeCalculation(rec_depTime,selectedRoute)});
@@ -230,8 +249,8 @@ var app = {
                         $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
                             $("#recommendationNotification").fadeOut("fast");
                             $("#accidentNotification").fadeOut("fast");
-                            $("#recommendationNotification").fadeIn("slow");
-                            $("#recommendationNotificationMessage").replaceWith('<p id="recommendationNotificationMessage">message :'+g_message.message+'</p>');
+                            $("#recommendationNotification").fadeIn("slow");                                             //message : THIS IS THERE IN DOWN LINE
+                            $("#recommendationNotificationMessage").replaceWith('<p id="recommendationNotificationMessage">'+g_message.message+'</p>');
                             $("#dismissRecommendationNotification").click(function(e){
                             $("#recommendationNotification").fadeOut("fast");
                             });

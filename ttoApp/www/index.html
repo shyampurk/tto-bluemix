@@ -29,13 +29,18 @@
 					<form id="form">
 						<div class="form-main-style">
 							<div class="form-style">
+								<!-- ADDED Select Route instead of select Route -->
 		                    	<label for="route">Select Route</label>
 		                    </div>
-	                        <select id="selectRoute" class="opts">
-	                            <option selected="selected" value="select">select</option>
-	                            <option value="NEWARK-EDISON">NEWARK-EDISON</option>
-	                            <option value="BROOKLYN-DENVILLE">BROOKLYN-DENVILLE</option>
-	                            <option value="MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL">MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL</option>
+	                        <select id="SelectRoute" class="opts">
+	                        	<!-- ADDED Select instead of select -->
+	                            <option selected="selected" value="Select">Select</option>
+	                            <!-- EDITED THESE LINES -->
+	                            <option value="NEWARK-EDISON">NEWARK To EDISON</option>
+	                            <option value="BROOKLYN-DENVILLE">BROOKLYN To DENVILLE</option>
+	                            <option value="MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL">MOUNTZION RADIOLOGY CENTER To SF GENERAL HOSPITAL
+	                            <!-- TILL HERE -->
+	                            </option>
 	                        </select></br>
 	                        <div class= "form-style">
 	                        	<label for="arrivalTime">Desired Arrival Time</label>
@@ -120,7 +125,7 @@
             	<p id="recommendationNotificationMessage"></p>
 			</div>
 			<div id="timeNotInRangeNotification" style="display: none;">
-            	<p style="color: black;">Time Not in Range Alert !!!<img src="img/close.png" id="dismissTimeNotInRangeNotification" align="right" style="padding:0px 5px 0px;"/></p>
+            	<p style="color: black;">Time out of Range <img src="img/close.png" id="dismissTimeNotInRangeNotification" align="right" style="padding:0px 5px 0px;"/></p>
             	<p id="timeNotInRangeNotificationMessage"></p>
 			</div>
 		</div>

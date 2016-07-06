@@ -14,6 +14,16 @@ mini = 10
 # maxlimit = 72
 maxlimit = 108 # 18 hrs buffer
 
+
+
+'''****************************************************************************************
+Function Name 	:	sfalgo  (Algorithm operation)
+Description		:	Function which generates the test data
+Parameters      :   date              - Present Time(route specific)
+					induceTime        - Time for which values need to be changed(Recommended Departure Time suggested for the client)
+					induceWeather     - weather value of our choice(selected through induceScript)
+					induceTemparature - temparature value of our choice(selected through induceScript)
+****************************************************************************************'''
 def sfalgo(date,induceTime,induceWeather,induceTemparature):
 	
 	global mini,maxlimit

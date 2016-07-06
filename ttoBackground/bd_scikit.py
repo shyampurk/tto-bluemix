@@ -15,7 +15,11 @@ logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG,format='%(asctime)
 
 
 
-
+'''****************************************************************************************
+Function Name 	:	bd_scikitalgo  (Algorithm operation)
+Description		:	Function which does the scikit algorithm operation and gives the result
+Parameters      :   bd_df (test data generated in testprep function)
+****************************************************************************************'''
 def bd_scikitalgo(bd_df):
 	try:
 		uri ='mongodb://rajeevtto:radiostud@ds035315-a0.mongolab.com:35315,ds035315-a1.mongolab.com:35315/newttobackground?replicaSet=rs-ds035315'

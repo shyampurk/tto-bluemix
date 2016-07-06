@@ -16,6 +16,11 @@ logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG,format='%(asctime)
 
 
 
+'''****************************************************************************************
+Function Name 	:	ne_scikitalgo  (Algorithm operation)
+Description		:	Function which does the scikit algorithm operation and gives the result
+Parameters      :   ne_df (test data generated in testprep function)
+****************************************************************************************'''
 def ne_scikitalgo(ne_df):
 
 # def ne_scikitalgo():       

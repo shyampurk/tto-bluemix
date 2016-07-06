@@ -17,6 +17,11 @@ logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG,format='%(asctime)
 
 
 
+'''****************************************************************************************
+Function Name 	:	sf_scikitalgo  (Algorithm operation)
+Description		:	Function which does the scikit algorithm operation and gives the result
+Parameters      :   sf_df (test data generated in testprep function)
+****************************************************************************************'''
 
 def sf_scikitalgo(sf_df):
 	try:
