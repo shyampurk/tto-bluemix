@@ -42,7 +42,7 @@ zone_ttimedct = {"NEWARK-EDISON":["US/Eastern",1719],"BROOKLYN-DENVILLE":["US/Ea
 Function Name 	:	publish_handler  (pubnub operation)
 Description		:	Function used to publish the data to the client
 Parameters 		:	channel          - UUID of the client   
-					result           - The result i.e.,   
+					result           - The result i.e.,   The dictionary contains recommendations or alerts
 ****************************************************************************************'''
 def publish_handler(channel,result):
 	try:	
@@ -73,7 +73,7 @@ def publish_handler(channel,result):
 Function Name 	:	alertpublish_handler  (pubnub operation)
 Description		:	Function used to publish the data to the client
 Parameters 		:	channel          - UUID of the client   
-					result           - The result i.e.,   
+					result           - The result i.e.,   The dictionary contains recommendations or alerts
 ****************************************************************************************'''		
 def alertpublish_handler(channel,result):
 	try:	
