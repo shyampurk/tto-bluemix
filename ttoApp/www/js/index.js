@@ -64,20 +64,25 @@ var app = {
             else{
                 for(var i = 0; i < recommendation.length; i++) {
                     //EDITED THIS LINE
-                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgrey;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'"DepTime :> PredictedDepartureTime :'+recommendation[i].predictedDepartureTime+'</h5><p id="predArrTime_'+i+'" arrivalTime :> PredictedArrivalTime :'+recommendation[i].predictedArrivalTime+'</p><p id="recommendation_ptag'+i+'"> Departure note :'+recommendation[i].dep_note+'</p></div>');
-                
-                }
+                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgrey;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">PredictedDepartureTime::'+recommendation[i].predictedDepartureTime+'</h5><p id="predArrTime_'+i+'">PredictedArrivalTime::'+recommendation[i].predictedArrivalTime+'</p><p id="recommendation_ptag'+i+'">Departure note::'+recommendation[i].dep_note+'</p></div>');
+                   
+                    }
             }
             var selectedRoute = document.getElementById('selectedRoute').innerHTML   
                 $("#recommendation_0").click(function(e){
+                      console.log("mytesting");
+                      console.log(document.getElementById("recommendation_hTag_0").innerHTML);
                       var rec_depTime_0 = document.getElementById("recommendation_hTag_0").innerHTML
+                      rec_depTime_0 = rec_depTime_0.split("::")[1] 
                       var predArrTime_0 = document.getElementById("predArrTime_0").innerHTML
+                      
                       var pred_minutesReal = recommendation[0].pred_minutesReal
                       app.openpopup(rec_depTime_0,selectedRoute,pred_minutesReal);
                       return false;
                 });
                 $("#recommendation_1").click(function(e){
                       var rec_depTime_1 = document.getElementById("recommendation_hTag_1").innerHTML
+                      rec_depTime_1 = rec_depTime_1.split("::")[1]
                       var predArrTime_1 = document.getElementById("predArrTime_1").innerHTML
                       var pred_minutesReal = recommendation[1].pred_minutesReal
                       app.openpopup(rec_depTime_1,selectedRoute,pred_minutesReal);
@@ -85,6 +90,7 @@ var app = {
                 });
                 $("#recommendation_2").click(function(e){
                       var rec_depTime_2 = document.getElementById("recommendation_hTag_2").innerHTML
+                      rec_depTime_2 = rec_depTime_2.split("::")[1]
                       var predArrTime_2 = document.getElementById("predArrTime_2").innerHTML
                       var pred_minutesReal = recommendation[2].pred_minutesReal
                       app.openpopup(rec_depTime_2,selectedRoute,pred_minutesReal);
@@ -109,15 +115,15 @@ var app = {
     },
 
     localTimeCalculation: function(selectedRoute){
-        if (selectedRoute == "NEWARK-EDISON") {
+        if (selectedRoute == "NEWARK To EDISON") {
             g_current_time = moment().tz("US/Eastern").format("YYYY-MM-DD HH:mm:ss");
             console.log(g_current_time)
         }
-        else if(selectedRoute == "BROOKLYN-DENVILLE"){
+        else if(selectedRoute == "BROOKLYN To DENVILLE"){
             g_current_time = moment().tz("US/Eastern").format("YYYY-MM-DD HH:mm:ss");
             console.log(g_current_time)
         }
-        else if(selectedRoute == "MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL"){
+        else if(selectedRoute == "MOUNTZION RADIOLOGY CENTER To SF GENERAL HOSPITAL"){
             g_current_time = moment().tz("US/Pacific").format("YYYY-MM-DD HH:mm:ss");
             console.log(g_current_time)
         }

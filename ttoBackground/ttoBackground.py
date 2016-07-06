@@ -32,6 +32,12 @@ Limit = 1
 Day_List = ['','Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 
 
+
+'''****************************************************************************************
+Function Name 	:	function_routenewarkedison  (Algorithm operation)
+Description		:	Function used get the data from api calls and push the data to mongodb 
+					and intiatiates the testdata prep and scikit algorithm
+****************************************************************************************'''
 def function_routenewarkedison():
 	'''
 	ROUTE    --> GardenStatePkwy,Newark,NJ,USA to Edison,NJ,USA <--
@@ -331,6 +337,11 @@ def function_routenewarkedison():
 			
 
 
+'''****************************************************************************************
+Function Name 	:	function_routebrooklyndenville  (Algorithm operation)
+Description		:	Function used get the data from api calls and push the data to mongodb 
+					and intiatiates the testdata prep and scikit algorithm
+****************************************************************************************'''
 def function_routebrooklyndenville():
 	'''
 	ROUTE -->AT-Avenue,Brooklyn,NY,USA to Denville,NJ,USA<--
@@ -633,6 +644,11 @@ def function_routebrooklyndenville():
 			
 
 
+'''****************************************************************************************
+Function Name 	:	function_routesanfrancisco  (Algorithm operation)
+Description		:	Function used get the data from api calls and push the data to mongodb 
+					and intiatiates the testdata prep and scikit algorithm
+****************************************************************************************'''
 def function_routesanfrancisco():
 	'''
 	ROUTE --> Mount zion Radiology,1600 Divisadero St,SF,USA to 

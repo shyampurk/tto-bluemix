@@ -607,7 +607,7 @@ Parameters 		:	message - message from the client
 					channel - UUID of the client
 ****************************************************************************************'''
 def tto_callback(message,channel):
-	try:	
+	try:
 		clientID = str(message['CID'])
 		requestType = int(message['requestType'])
 			
@@ -631,6 +631,7 @@ def tto_callback(message,channel):
 
 			if requestType == 2: #request for starting the journey
 				
+				print type(message['startTime'])
 				startTime = datetime.datetime.strptime(message["startTime"],"%Y-%m-%d %H:%M:%S")
 				
 				zone = pytz.timezone(client_data[clientID]["timeZone"])
