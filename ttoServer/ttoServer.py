@@ -54,12 +54,12 @@ def publish_handler(channel,result):
 					if (pbreturn[0] == 1):
 						return None
 					elif(pbreturn[0] == 0):
-						logging.error("The publish return error  %s for the Task %s for the client %s"%(pbreturn[1],channel,details['DISPLAY_NAME']))
+						logging.error("The publish return error  %s for the client %s"%(pbreturn[1],channel))
 						pbtry+=1
 					else:
 						pass
 				except Exception as error_pdhandler:
-					logging.error("The error_pdhandler Exception is %s,%s,%s"%(error_pdhandler,type(error_pdhandler)))
+					logging.error("The error_pdhandler Exception is %s,%s"%(error_pdhandler,type(error_pdhandler)))
 
 					pbtry+=1
 		else:
@@ -86,18 +86,18 @@ def alertpublish_handler(channel,result):
 						client_data[channel].update({"alertsentproceed":False})
 						return None
 					elif(pbreturn[0] == 0):
-						logging.error("The publish return error  %s for the Task %s for the client %s"%(pbreturn[1],channel,details['DISPLAY_NAME']))
+						logging.error("The publish return error  %s for the client %s"%(pbreturn[1],channel))
 						pbtry+=1
 					else:
 						pass
 				except Exception as error_pdhandler:
-					logging.error("The alerterror_pdhandler Exception is %s,%s,%s"%(error_pdhandler,type(error_pdhandler)))
+					logging.error("The alerterror_pdhandler Exception is %s,%s"%(error_pdhandler,type(error_pdhandler)))
 
 					pbtry+=1
 		else:
 			pass
 	except Exception as alertpubhandlerError:
-		logging.error("The publish function Exception is %s,%s,%s"%(alertpubhandlerError,type(alertpubhandlerError),str(result)))
+		logging.error("The alertpublish function Exception is %s,%s,%s"%(alertpubhandlerError,type(alertpubhandlerError),str(result)))
 
 				
 
@@ -111,6 +111,9 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 	try:
 		global newttobackground
 		proceed = False
+		
+		dateproceed = False
+
 		route_time = datetime.datetime.now(pytz.timezone(client_data[clientID]['timeZone'])) 
 		theorytimeinsecs = client_data[clientID]['theoryTime']
 		theorytimeinminutes = theorytimeinsecs/60.0 #Theory time in minutes
@@ -129,130 +132,160 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 		reminsecs =  rem*60
 		
 		Limit = 1
-		for newarkedison_doc in newttobackground.ttobgcoll.find({"route":client_data[clientID]['routeName']}).sort('recorddate', pymongo.DESCENDING).limit(Limit):
-				endDate = newarkedison_doc['recorddate']
-		
-		diff = DesiredArrivalTime-route_time
 
-		day  = diff.days
-		hour = (day*24 + diff.seconds/3600)
-		
-		realtimeinminutes = []
-		time = []
-		realtimeinsec = []
-		cursor = newttobackground.ttoresultcoll.find({"route":client_data[clientID]['routeName']}).sort('time', pymongo.ASCENDING).limit(150)
-		
-		if (0<=hour <= 12 and day < 1 and day >= -1):
-			proceed = True
-			for nedoc in cursor:
-				 time.append(nedoc['time'])
-				 realtimeinminutes.append(nedoc['predictioninmins'])
-				 realtimeinsec.append(nedoc['predictioninsecs'])
-		else:
+		# All the mongolab operations are inside the try exception block
+		try:
+			# This is to get the latest date in the mongodb
+			dateCursor = newttobackground.ttobgcoll.find({"route":client_data[clientID]['routeName']}).sort('recorddate', pymongo.DESCENDING).limit(Limit)
 			
-			result = {"responseType":4,"message":"Desired Arrival Time is more than 12 hours away"}
+			for newarkedison_doc in dateCursor:
+					endDate = newarkedison_doc['recorddate']
+			dateproceed = True		
+		except Exception as e:
+			dateproceed = False
+			result = {"responseType":4,"message":"oops!! Internal problem"}
 			publish_handler(clientID,result)
-			proceed = False
-			del client_data[clientID]
+			logging.error("The dateCursor error is %s,%s"%(e,type(e)))
+
+		if dateproceed == True:
+
+			diff = DesiredArrivalTime-route_time
+
+			day  = diff.days
+			hour = (day*24 + diff.seconds/3600)
 			
-		timediffinminutes = []
-		timediffinsecs = []
-		if (proceed == True):
-			for i,j in zip(realtimeinsec,realtimeinminutes):
-				timediffinsecs.append((((float(i)-(theorytimeinsecs)))+reminsecs))
-				timediffinminutes.append((((float(j)-(theorytimeinminutes)))+reminminutes))
-			
-			for i in range(len(time)):
-				if (int(DesiredArrivalTime.strftime("%H")) == int(time[i].strftime("%H")) and int(DesiredArrivalTime.strftime("%M")) == int(time[i].strftime("%M"))):
-					DesiredArrivalTimeIndexInList = time.index(time[i])
-							
+			realtimeinminutes = []
+			time = []
+			realtimeinsec = []
+				
 			try:
+				#This is to get the predictions from the result collection 
+				cursor = newttobackground.ttoresultcoll.find({"route":client_data[clientID]['routeName']}).sort('time', pymongo.ASCENDING).limit(150)
+				
+				if (0<=hour <= 12 and 0<=day<=1):
 					
-				pred_minutes = []
-				for i in range(len(timediffinminutes)):
-					pred_minutes.append(float(timediffinminutes[i]+theorytimeinminutes))
-				
-
-				'''DISCUSSED METHOD'''
-				startpointIndex = int(DesiredArrivalTimeIndexInList-(theorytimeinminutes/10))
-				
-				
-
-				i = startpointIndex
-				recommendationFlag = True
-				checkedOnce = []
-				recommendationResult = {}
-				listlen = len(time)
-				j = 0
-				while (recommendationFlag == True):
-				
-					predictedArrivalTime = time[i]+datetime.timedelta(minutes=pred_minutes[i])
-					replaceapproach = predictedArrivalTime.replace(tzinfo=pytz.timezone(client_data[clientID]['timeZone']))
-					zone = pytz.timezone(client_data[clientID]["timeZone"])
-					predictedArrivalTime = zone.localize(predictedArrivalTime)
-					
-					diff = DesiredArrivalTime - predictedArrivalTime
-
-					diff_minutes = (diff.days *24*60)+(diff.seconds/60)
-
-					
-					
-					if (diff_minutes == 0): #This condition is the top priority
-						pred_minutesReal = pred_minutes[i]-reminminutes
-						recommendationResult.update({"onTime":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach ontime","pred_minutesReal":pred_minutesReal}})		
-						recommendationFlag = False
-
-					elif (0<=diff_minutes<=10):
-						pred_minutesReal = pred_minutes[i]-reminminutes
-						if(time[i] not in checkedOnce):
-							
-							checkedOnce.append(time[i])
-							recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will be %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
-							i+=1#This line should be here
-						else:
-							recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will be %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
-							recommendationFlag = False
-					
-
-					else:
-						pred_minutesReal = pred_minutes[i]-reminminutes
-						if (time[i] not in checkedOnce):
-							
-							checkedOnce.append(time[i])
-							recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will be %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
-							i-=1 #This line should be here
-						else:
-							recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will be %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
-							recommendationFlag = False
-
-						
-				
-				recommresult = []
-				
-				for val in recommendationResult.keys():
-					recommresult.append(recommendationResult[val])
-				
-				pub_dict = {"responseType":1,"route_name":client_data[clientID]['routeName'],"arrival_time":str(DesiredArrivalTime),"recommendation":recommresult}
-				publish_handler(client_data[clientID]["clientID"],pub_dict)
-				
-						
-
-				client_data[clientID].update({"recommndsentproceed":False})
-				
-				recommendedDepTimeAlgoFunc = []
-				for i in range(len(recommresult)):
-					recommendedDepTimeAlgoFunc.append(recommresult[i]["predictedDepartureTime"])
-
-				return pub_dict,recommendedDepTimeAlgoFunc
+					proceed = True
+					for nedoc in cursor:
+						 time.append(nedoc['time'])
+						 realtimeinminutes.append(nedoc['predictioninmins'])
+						 realtimeinsec.append(nedoc['predictioninsecs'])
+				else:
+					if day < 0:
+						result = {"responseType":4,"message":"Desired Arrival Time is below 12 hours range"}
+					else:	
+						result = {"responseType":4,"message":"Desired Arrival Time is more than 12 hours away"}
+					publish_handler(clientID,result)
+					proceed = False
+					del client_data[clientID]
 			except Exception as e:
-				logging.error("The error occured in recommalgoinnerError is %s,%s"%(e,type(e)))
-		
+				logging.error("The testdatacursor error is %s,%s"%(e,type(e)))
+				proceed = False
 				result = {"responseType":4,"message":"oops!! Internal problem"}
 				publish_handler(clientID,result)
+
+			timediffinminutes = []
+			timediffinsecs = []
+			if (proceed == True):
+				for i,j in zip(realtimeinsec,realtimeinminutes):
+					timediffinsecs.append((((float(i)-(theorytimeinsecs)))+reminsecs))
+					timediffinminutes.append((((float(j)-(theorytimeinminutes)))+reminminutes))
+				
+				for i in range(len(time)):
+					if (int(DesiredArrivalTime.strftime("%H")) == int(time[i].strftime("%H")) and int(DesiredArrivalTime.strftime("%M")) == int(time[i].strftime("%M"))):
+						DesiredArrivalTimeIndexInList = time.index(time[i])
+								
+				try:
+						
+					pred_minutes = []
+					for i in range(len(timediffinminutes)):
+						pred_minutes.append(float(timediffinminutes[i]+theorytimeinminutes))
 					
 
+					'''DISCUSSED METHOD'''
+					startpointIndex = int(DesiredArrivalTimeIndexInList-(theorytimeinminutes/10))
+					
+					
+
+					i = startpointIndex
+					recommendationFlag = True
+					checkedOnce = []
+					recommendationResult = {}
+					listlen = len(time)
+					j = 0
+					while (recommendationFlag == True):
+					
+						predictedArrivalTime = time[i]+datetime.timedelta(minutes=pred_minutes[i])
+						replaceapproach = predictedArrivalTime.replace(tzinfo=pytz.timezone(client_data[clientID]['timeZone']))
+						zone = pytz.timezone(client_data[clientID]["timeZone"])
+						predictedArrivalTime = zone.localize(predictedArrivalTime)
+						
+						diff = DesiredArrivalTime - predictedArrivalTime
+
+						diff_minutes = (diff.days *24*60)+(diff.seconds/60)
+
+						
+						
+						if (diff_minutes == 0): #This condition is the top priority
+							pred_minutesReal = pred_minutes[i]-reminminutes
+							recommendationResult.update({"onTime":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach ontime","pred_minutesReal":pred_minutesReal}})		
+							recommendationFlag = False
+
+						elif (0<=diff_minutes<=10):
+							pred_minutesReal = pred_minutes[i]-reminminutes
+							if(time[i] not in checkedOnce):
+								
+								checkedOnce.append(time[i])
+								recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
+								i+=1#This line should be here
+							else:
+								recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
+								recommendationFlag = False
+						
+
+						else:
+							pred_minutesReal = pred_minutes[i]-reminminutes
+							if (time[i] not in checkedOnce):
+								
+								checkedOnce.append(time[i])
+								recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
+								i-=1 #This line should be here
+							else:
+								recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
+								recommendationFlag = False
+
+							
+					
+					recommresult = []
+					
+					for val in recommendationResult.keys():
+						recommresult.append(recommendationResult[val])
+					
+					pub_dict = {"responseType":1,"route_name":client_data[clientID]['routeName'],"arrival_time":str(DesiredArrivalTime),"recommendation":recommresult}
+					publish_handler(client_data[clientID]["clientID"],pub_dict)
+					logging.info("The sent message for the recommendationmessage"+str(pub_dict))
+							
+
+					client_data[clientID].update({"recommndsentproceed":False})
+					
+					recommendedDepTimeAlgoFunc = []
+					for i in range(len(recommresult)):
+						recommendedDepTimeAlgoFunc.append(recommresult[i]["predictedDepartureTime"])
+
+					return pub_dict,recommendedDepTimeAlgoFunc
+				except Exception as e:
+					logging.error("The error occured in recommalgoinnerError is %s,%s"%(e,type(e)))
+			
+					result = {"responseType":4,"message":"oops!! Internal problem"}
+					publish_handler(clientID,result)
+						
+
+			else:
+				# proceed else part
+				pass
 		else:
-			pass
+			# dateproceed else part
+			pass		
+		
 
 	except Exception as recommalgoError:
 		result = {"responseType":4,"message":"oops!! Internal problem"}
@@ -274,41 +307,50 @@ def Alerts(clientID,alert):
 	try:	
 		Limit = 1
 
-		alertList = [] #according to documentation
+		alertList = [] 
 				
 		routeName = client_data[clientID]["routeName"]
+		
+		alertcursorproceed = False	
+
+		try:		
+			#Alerts are in the ttobgcoll collection so getting the latest alerts for the route 
+			for newarkedison_doc in newttobackground.ttobgcoll.find({"route":routeName}).sort('recorddate', pymongo.DESCENDING).limit(Limit):
+				endDate = newarkedison_doc['recorddate']
 				
-		#Alerts are in the ttobgcoll collection so getting the latest alerts for the route 
-		for newarkedison_doc in newttobackground.ttobgcoll.find({"route":routeName}).sort('recorddate', pymongo.DESCENDING).limit(Limit):
-			endDate = newarkedison_doc['recorddate']
-			
-		for nedoc in newttobackground.ttobgcoll.find({"route":routeName,"recorddate":endDate}):
-			length = len(nedoc['traffic']['incidents'])
+			for nedoc in newttobackground.ttobgcoll.find({"route":routeName,"recorddate":endDate}):
+				length = len(nedoc['traffic']['incidents'])
+			alertcursorproceed = True	
+		except Exception as e:
+			logging.error("The latestalertcursor error is %s,%s"%(e,type(e)))
 
 		alertseverity = []
 		
-		for i in range(length):
-			if nedoc['traffic']['incidents'][i]['type'] == 4:
-				
-				alertList.append({"eventType":nedoc['traffic']['incidents'][i]['type'],"shortDesc":nedoc['traffic']['incidents'][i]['shortDesc']})
-				alertseverity.append(nedoc['traffic']['incidents'][i]['severity'])
-				
+		if (alertcursorproceed == True):
+			for i in range(length):
+				if nedoc['traffic']['incidents'][i]['type'] == 4:
+					
+					alertList.append({"eventType":nedoc['traffic']['incidents'][i]['type'],"shortDesc":nedoc['traffic']['incidents'][i]['shortDesc']})
+					alertseverity.append(nedoc['traffic']['incidents'][i]['severity'])
+					
 
-		if (len(alertseverity)>1):
-			secltdalert = max(alertseverity)
-			maxseverealertIndex = alertseverity.index(secltdalert)
+			if (len(alertseverity)>1):
+				secltdalert = max(alertseverity)
+				maxseverealertIndex = alertseverity.index(secltdalert)
+				
+				alertList = [alertList[maxseverealertIndex]]
+
 			
-			alertList = [alertList[maxseverealertIndex]]
 
-		
-
-		alertpub_dict = {"responseType":2,"message":alertList}
-		# if there are any alerts then send or dont
-		if (len(alertList)>0):
-			if alert == True:
-				alertpublish_handler(clientID,alertpub_dict)
-			else:
-				publish_handler(clientID,alertpub_dict)	
+			alertpub_dict = {"responseType":2,"message":alertList}
+			# if there are any alerts then send or dont
+			if (len(alertList)>0):
+				if alert == True:
+					alertpublish_handler(clientID,alertpub_dict)
+				else:
+					publish_handler(clientID,alertpub_dict)
+		else:
+			pass				
 
 	except Exception as alertError:
 		logging.error("The error occured in alertError is %s,%s"%(alertError,type(alertError)))
@@ -403,6 +445,7 @@ Function Name 	:	stopJourney  (Algorithm operation)
 Description		:	Function used to delete the invalid clients from the internal Algorithm operations
 ****************************************************************************************'''		
 def stopJourney(stpCid):
+	# Deleting clients from only commonclient lists and client_data
 	try:	
 		delCid = stpCid
 		if delCid in client_data.keys():	
@@ -431,6 +474,7 @@ def recommendationAlertFunc(recommtime,cid,pred_minutesReal):
 	try:	
 		recommendationAlertPredictions = []
 		recommendationAlertTime = []
+		
 		cursor = newttobackground.ttoresultcoll.find({"route":client_data[cid]['routeName']})
 		
 		for doc in cursor:
@@ -439,6 +483,8 @@ def recommendationAlertFunc(recommtime,cid,pred_minutesReal):
 
 		if recommtime in recommendationAlertTime:
 			recommendationAlertIndex = recommendationAlertTime.index(recommtime)
+		
+
 		val = int(recommendationAlertPredictions[recommendationAlertIndex]) * 60
 		pred_minutesReal = int(pred_minutesReal) * 60
 
@@ -475,8 +521,7 @@ def beforeJourney():
 						diff = recommendedTime-presentrouteTime 
 						diffMin = (diff.days * 24 * 60) + (diff.seconds/60)
 							
-						# enters into this condition only clients recommendation time is 2hrs ahead
-						# and executes every10min thats why one more condition checking for 10mins
+						# executes every10min thats why one more condition checking for 10mins
 						if (10<=diffMin<= 720):
 							val = datetime.datetime.now(pytz.timezone(localDict['timeZone'])).strftime("%M")
 							if (int(val)%g_minit == g_divCompare and localDict['everyTenminproceed'] == True):#make sure you are dividing with 10 for the 10min purpose
@@ -492,26 +537,25 @@ def beforeJourney():
 								
 								result,val = recommendationAlertFunc(existedRecommendation,cid,existedpredminutesReal)
 								
-								if result == "notsame":
+								if result == 0:#Different prediction 
 									localDict.update({"recommndsentproceed":True})
 									# means new recommendation
 									localDict.update({"everyTenminproceed":False})
 									# means comeback after 10mins
 
 									if val > 0:
-										message = {"responseType":3,"message":"You should start %smin after %s"%(int(val),str(recommendedTime))}
+										message = {"responseType":3,"message":"You should start %smin after %s"%(int(val),str(recommendedTime.replace(second=0,tzinfo=None)))}
 									if val < 0:	
-										message = {"responseType":3,"message":"You should start %smin earlier than %s "%(abs(int(val)),str(recommendedTime))}
+										message = {"responseType":3,"message":"You should start %smin earlier than %s "%(abs(int(val)),str(recommendedTime.replace(second=0,tzinfo=None)))}
+									logging.info("recommendationAlert -->"+str(message))
 									publish_handler(cid,message)
 								else:
-									# localDict.update({"recommndsentproceed":False})
 									# # means new recommendation
 									localDict.update({"everyTenminproceed":False})
-									# means comeback after 10mins
 									pass
 											
 								
-								# now Alerts
+								#Alerts
 								localDict.update({"recommndsentproceed":True})
 								Alerts(cid,False) 
 								localDict.update({"recommndsentproceed":False})
@@ -519,6 +563,8 @@ def beforeJourney():
 								# updating to main dictionary
 								if cid in client_data.keys():
 									client_data[cid].update({"recommndsentproceed":localDict["recommndsentproceed"],"everyTenminproceed":localDict["everyTenminproceed"]})
+								else:
+									pass	
 
 							else:
 								pass		
@@ -608,82 +654,90 @@ Parameters 		:	message - message from the client
 ****************************************************************************************'''
 def tto_callback(message,channel):
 	try:
-		clientID = str(message['CID'])
-		requestType = int(message['requestType'])
-			
-		if clientID in client_data.keys():
-			
-			if requestType == 1: # request for the recommendation 
-				# here client should be there in the commonClientIDList because we are adding it at time of entrance
-				if clientID not in commonClientIDList:
-					commonClientIDList.append(clientID)
+		if message.has_key("requestType") and message.has_key("CID"):
+			logging.info(message)#printing the message we receive from the client
+			clientID = str(message['CID'])
+			requestType = int(message['requestType'])
+					
+			if clientID in client_data.keys():
+				
+				if requestType == 1: # request for the recommendation 
+					# here client should be there in the commonClientIDList because we are adding it at time of entrance
+					if clientID not in commonClientIDList:
+						commonClientIDList.append(clientID)
 
-				routeName = str(message['routeName'])#only in requesttype 1 we will get it
-				# adding necessary client data
-				client_data[clientID] = {"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":message['arrivalTime'],"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False}	
-				# datetime format
-				arrivalTime = datetime.datetime.strptime(message['arrivalTime'], "%Y-%m-%d %H:%M:%S")
-				# adding timezone using localizing technique
-				zone = pytz.timezone(client_data[clientID]["timeZone"])
-				arrivalTime = zone.localize(arrivalTime)
-				
-				recommendationAlgoFunc(arrivalTime,clientID)#calling the recommendation algorithm function
+					routeName = str(message['routeName'])#only in requesttype 1 we will get it
+					# adding necessary client data
+					client_data[clientID] = {"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":message['arrivalTime'],"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False}	
+					# datetime format
+					arrivalTime = datetime.datetime.strptime(message['arrivalTime'], "%Y-%m-%d %H:%M:%S")
+					# adding timezone using localizing technique
+					zone = pytz.timezone(client_data[clientID]["timeZone"])
+					arrivalTime = zone.localize(arrivalTime)
+					
+					recommendationAlgoFunc(arrivalTime,clientID)#calling the recommendation algorithm function
 
-			if requestType == 2: #request for starting the journey
-				
-				print type(message['startTime'])
-				startTime = datetime.datetime.strptime(message["startTime"],"%Y-%m-%d %H:%M:%S")
-				
-				zone = pytz.timezone(client_data[clientID]["timeZone"])
-				arrivalTime = zone.localize(startTime)
-				
-				
-				startedJourneyClientList.update({clientID:{"clientID":clientID,"recommendedTime":startTime}})
-				# updating alertsentproceed so the alerts will work for the client
-				client_data[clientID].update({"alertsentproceed":True}) 
-				# callling the alertsent function 
-				Alerts(clientID,True)
-				
-				# incase if the client started journey immeddiately before entering into the beforejourney list
-				if clientID in commonClientIDList:
-					index = commonClientIDList.index(clientID)
-					del commonClientIDList[index]
-					# del beforeJourneyClientList[message['CID']]
-				
-				# sharing client id with started journey list so that there wont any problem for the dependency functions 
-				if clientID not in commonStartedClientIDList:
-					commonStartedClientIDList.append(clientID)
+				if requestType == 2: #request for starting the journey
+					
+					startTime = datetime.datetime.strptime(message["startTime"],"%Y-%m-%d %H:%M:%S")
+					
+					zone = pytz.timezone(client_data[clientID]["timeZone"])
+					arrivalTime = zone.localize(startTime)
+					
+					
+					startedJourneyClientList.update({clientID:{"clientID":clientID,"recommendedTime":startTime}})
+					# updating alertsentproceed so the alerts will work for the client
+					client_data[clientID].update({"alertsentproceed":True}) 
+					# callling the alertsent function 
+					Alerts(clientID,True)
+					
+					# incase if the client started journey immeddiately before entering into the beforejourney list
+					if clientID in commonClientIDList:
+						index = commonClientIDList.index(clientID)
+						del commonClientIDList[index]
+						# del beforeJourneyClientList[message['CID']]
+					
+					# sharing client id with started journey list so that there wont any problem for the dependency functions 
+					if clientID not in commonStartedClientIDList:
+						commonStartedClientIDList.append(clientID)
 
-			if requestType == 3: #when clients ends the journey
-				stpCid = str(message['CID'])
-				stopJourney(stpCid)			
+				if requestType == 3: #when clients ends the journey
+					stpCid = str(message['CID'])
+					stopJourney(stpCid)			
 
-			if requestType == 4:# confirmation from the client to remember the query
-				recommendedDepTime = datetime.datetime.strptime(message['recommendedDepTime'], "%Y-%m-%d %H:%M:%S")	
+				if requestType == 4:# confirmation from the client to remember the query
+					recommendedDepTime = datetime.datetime.strptime(message['recommendedDepTime'], "%Y-%m-%d %H:%M:%S")	
+					
+					zone = pytz.timezone(client_data[clientID]["timeZone"])
+					recommendedDepTime = zone.localize(recommendedDepTime)
+					
+					beforeJourneyClientList[clientID] = {"clientID":clientID,"recommendedDepTime":recommendedDepTime,"pred_minutesReal":message['pred_minutesReal']}				
+					
+					
+			else:
+				# clientID = str(message['CID'])
+				# requestType = int(message['requestType'])
 				
-				zone = pytz.timezone(client_data[clientID]["timeZone"])
-				recommendedDepTime = zone.localize(recommendedDepTime)
-				
-				beforeJourneyClientList[clientID] = {"clientID":clientID,"recommendedDepTime":recommendedDepTime,"pred_minutesReal":message['pred_minutesReal']}				
-				
-				
+				if requestType == 1:
+					
+					if clientID not in commonClientIDList:
+						commonClientIDList.append(clientID)
+
+					routeName = str(message['routeName'])#only in requesttype 1 we will get it
+					# adding necessary client data
+					client_data[clientID] = {"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":message['arrivalTime'],"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False}	
+					# datetime format
+					arrivalTime = datetime.datetime.strptime(message['arrivalTime'], "%Y-%m-%d %H:%M:%S")
+					# adding timezone using localizing technique
+					zone = pytz.timezone(client_data[clientID]["timeZone"])
+					arrivalTime = zone.localize(arrivalTime)
+					
+					recommendationAlgoFunc(arrivalTime,clientID)#calling the recommendation algorithm function
 		else:
-			if requestType == 1:
-
-				if clientID not in commonClientIDList:
-					commonClientIDList.append(clientID)
-
-				routeName = str(message['routeName'])#only in requesttype 1 we will get it
-				# adding necessary client data
-				client_data[clientID] = {"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":message['arrivalTime'],"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False}	
-				# datetime format
-				arrivalTime = datetime.datetime.strptime(message['arrivalTime'], "%Y-%m-%d %H:%M:%S")
-				# adding timezone using localizing technique
-				zone = pytz.timezone(client_data[clientID]["timeZone"])
-				arrivalTime = zone.localize(arrivalTime)
-				
-				recommendationAlgoFunc(arrivalTime,clientID)#calling the recommendation algorithm function
+			pass		
 	except Exception as callbackError:
+		result = {"responseType":4,"message":"oops!! Internal problem"}
+		publish_handler(clientID,result)
 		logging.error("The error occured in callbackError is %s,%s"%(callbackError,type(callbackError)))
 
 					

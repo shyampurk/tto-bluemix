@@ -24,21 +24,45 @@ var app = {
 
     registerRoute: function() {
         $(document).ready(function(){   
-            $(':mobile-pagecontainer').pagecontainer('change', $('#secondpage'));        
+            
+            //EDITED THIS FUNCTION 
+            // 1) Select has been selected instead of route name
+            // 2) starting the secondpage in the else block 
+            // refer the old programs if something goes wrong
+
+           	
             var routeID = document.getElementById("SelectRoute").value;
             var arrivalTime = document.getElementById("datetimepicker").value;
-            var getrouteMessage = {"CID":CID,"requestType":1,"routeName":routeID,"arrivalTime":arrivalTime};
-            app.publish(getrouteMessage);
-            app.subscribeStart()
-        })
+            
+            if (routeID == "Select"){
+            	alert("Please select valid Route");
+             
+         }
+            
+            else{
+	        	$(':mobile-pagecontainer').pagecontainer('change', $('#emptypage'));
+	           
+            	app.showLoading("Waiting for recommendations..."); 
+                
+	            var getrouteMessage = {"CID":CID,"requestType":1,"routeName":routeID,"arrivalTime":arrivalTime};
+	            
+            	app.publish(getrouteMessage);
+	            
+	            app.subscribeStart()
+        		
+
+        }
+    })
     },
 
 
     recommendation: function (Server_message) {
         $(document).ready(function(){ 
+
             document.getElementById('selectedRoute').innerHTML = Server_message.route_name;
 
-            //EDITED THIS LINE
+            //EDITED THESE LINES
+            // BECAUSE WE CHANGED NEWARK-EDISON to  NEWARK To EDISON FOR THE UI PART
             if (Server_message.route_name == "NEWARK-EDISON"){
                 document.getElementById('selectedRoute').innerHTML = "NEWARK To EDISON";
                  }
@@ -64,7 +88,8 @@ var app = {
             else{
                 for(var i = 0; i < recommendation.length; i++) {
                     //EDITED THIS LINE
-                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgrey;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">PredictedDepartureTime::'+recommendation[i].predictedDepartureTime+'</h5><p id="predArrTime_'+i+'">PredictedArrivalTime::'+recommendation[i].predictedArrivalTime+'</p><p id="recommendation_ptag'+i+'">Departure note::'+recommendation[i].dep_note+'</p></div>');
+                    // JUST TO ADDED THE MESSAGE INFRONT OF THE OF THE TIME AND MADE EVERY MESSAGE BOLD
+                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgrey;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">Message :: '+recommendation[i].dep_note+'</h5></div>');
                    
                     }
             }
@@ -107,6 +132,8 @@ var app = {
         app.publish(selectedRecommendaionMessage);
         g_selectedRoute = selectedRoute
         // g_routePoints = g_selectedRoute.split("-");
+        // EDITED THIS LINE
+        // USED To TO SPLIT THE MESSAGE BECAUSE WE CHANGED THE ROUTE NAME
         g_routePoints = g_selectedRoute.split("To"); //NEWLINE
         
         console.log(g_selectedRoute)
@@ -189,8 +216,11 @@ var app = {
     },
 
     resetRecommendation: function(){
-        $("#journeyTrackRecommendList").remove();
-        location.reload();
+        $("#journeyTrackRecommendList").remove(); 
+        //EDITED LINES FOR RESET
+        $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage'));
+         //DISABLED THE FOLLOWING LINE 
+        // location.reload();
     },
 
     endJourney: function() {
@@ -207,7 +237,7 @@ var app = {
         $.mobile.loading("show", {
             text: text,
             textVisible: true,
-            textonly: false
+            textonly: true
         });
     },
 
@@ -230,9 +260,10 @@ var app = {
         pubnub.subscribe({                                     
             channel : CID,
             message : function(g_message){
-            // app.showLoading("Waiting for recommendations..."); 
-
+            
                 if(g_message.responseType == 1){
+                	$(':mobile-pagecontainer').pagecontainer('change', $('#secondpage'));        
+           
                     console.log(g_message)
                     app.recommendation(g_message)
                 }
