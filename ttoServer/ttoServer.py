@@ -343,6 +343,7 @@ def Alerts(clientID,alert):
 			
 
 			alertpub_dict = {"responseType":2,"message":alertList}
+			logging.info("AlertsMessage-->"+str(alertpub_dict)+str(clientID))
 			# if there are any alerts then send or dont
 			if (len(alertList)>0):
 				if alert == True:
@@ -490,9 +491,13 @@ def recommendationAlertFunc(recommtime,cid,pred_minutesReal):
 
 		
 		if pred_minutesReal == val:
+
+			logging.info("recommendationAlertMessage--> no change"+str(val)+str(pred_minutesReal))
 			return 1,0
 		else:
 			diff = pred_minutesReal - val
+			
+			logging.info("recommendationAlertMessage-->change in predictions"+str(val)+str(pred_minutesReal)+str(float(diff)/60.0))
 			return 0,float(diff)/60.0
 	except Exception as recommendationAlertFuncError:
 		logging.error("The error occured in recommendationAlertFuncError is %s,%s"%(recommendationAlertFuncError,type(recommendationAlertFuncError)))
@@ -536,7 +541,7 @@ def beforeJourney():
 								existedRecommendation = existedRecommendation.replace(tzinfo=None)
 								
 								result,val = recommendationAlertFunc(existedRecommendation,cid,existedpredminutesReal)
-								
+								logging.info("beforejourneyMessage-->clients now"+str(cid))
 								if result == 0:#Different prediction 
 									localDict.update({"recommndsentproceed":True})
 									# means new recommendation
@@ -593,12 +598,13 @@ def startedJourney():
 				for strtCid in startedJourneyClientList.keys():
 					if strtCid in commonStartedClientIDList:
 						presentrouteTimeminute = int(datetime.datetime.now(pytz.timezone(client_data[strtCid]['timeZone'])).strftime("%M"))
-
+						logging.info("startedJourneyMessage--> Clients now"+str(strtCid))
 						if (presentrouteTimeminute%g_minit == g_divCompare and client_data[strtCid]['everyTenminproceed'] == True):
 							Alerts(strtCid,True)
 							client_data[strtCid].update({"everyTenminproceed":False})	
 								
 						else:
+							
 							pass
 					else:
 						del startedJourneyClientList[strtCid]
@@ -633,9 +639,11 @@ def delCheck():
 					if diff_minutes < 0:
 						
 						if clientID in client_data.keys():
+							logging.info("delCheckMessage--> Something to Delete"+str(clientID)+str(DAT))
 							del client_data[clientID]
 						
 					else:
+						logging.info("delCheckMessage--> Nothing to Delete"+str(clientID)+str(DAT))
 						pass
 				time.sleep(g_sleepTime)		
 			else:
