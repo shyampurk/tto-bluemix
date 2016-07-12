@@ -2,7 +2,8 @@ var g_message
 var g_current_time
 var g_selectedRoute
 var g_routePoints
-var CID = PUBNUB.uuid().toString();
+// var CID = PUBNUB.uuid().toString();
+var CID = 'ciid2';
 var app = {
 
     initialize: function() {
@@ -14,6 +15,7 @@ var app = {
 
     bindEvents: function() {
         app.pubnubInit();
+        app.subscribeStart();
     },
 
     pubnubInit: function() {
@@ -29,7 +31,7 @@ var app = {
             // 1) Select has been selected instead of route name
             // 2) starting the secondpage in the else block 
             // refer the old programs if something goes wrong
-
+ 
            	
             var routeID = document.getElementById("SelectRoute").value;
             var arrivalTime = document.getElementById("datetimepicker").value;
@@ -46,10 +48,9 @@ var app = {
                 
 	            var getrouteMessage = {"CID":CID,"requestType":1,"routeName":routeID,"arrivalTime":arrivalTime};
 	            
-            	app.publish(getrouteMessage);
+                app.publish(getrouteMessage);
 	            
-	            app.subscribeStart()
-        		
+                 
 
         }
     })
@@ -217,10 +218,9 @@ var app = {
 
     resetRecommendation: function(){
         $("#journeyTrackRecommendList").remove(); 
-        //EDITED LINES FOR RESET
-        $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage'));
-         //DISABLED THE FOLLOWING LINE 
-        // location.reload();
+        $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage')); 
+        //EDITED LINES FOR RESET ADDED THE true AS ARGUMENT,WILL REMOVE THE CACHE
+        location.reload(true);
     },
 
     endJourney: function() {
@@ -229,7 +229,8 @@ var app = {
             app.publish(endJourneyMessage)
             $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage'));
             $("#journeyTrackRecommendList").remove();
-            location.reload();
+            //EDITED LINES, ADDED THE true AS ARGUMENT, WILL REMOVE THE CACHE
+            location.reload(true);
         });
     },
 
@@ -252,15 +253,18 @@ var app = {
         var stopJourneyMessage = {"CID":CID,"requestType":3};
         app.publish(stopJourneyMessage)
         $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage'));
-        setTimeout(location.reload(), 6000);
+        // setTimeout(location.reload(), 6000);
+        //EDITED LINES, ADDED THE true AS ARGUMENT, WILL REMOVE THE CACHE
+        location.reload(true);
 
     },
 
     subscribeStart: function(){  
+      
         pubnub.subscribe({                                     
             channel : CID,
             message : function(g_message){
-            
+            // console.log(g_message);
                 if(g_message.responseType == 1){
                 	$(':mobile-pagecontainer').pagecontainer('change', $('#secondpage'));        
            
@@ -269,7 +273,6 @@ var app = {
                 }
                 else if(g_message.responseType == 2){
                     console.log(g_message)
-                    $(document).ready(function(){
                         $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
                             $("#recommendationNotification").fadeOut("fast");
                             $("#accidentNotification").fadeOut("fast");
@@ -278,11 +281,10 @@ var app = {
                             $("#dismissAccidentNotification").click(function(e){
                                 $("#accidentNotification").fadeOut("fast");
                             });
-                    });
+                    
                 }
                 else if(g_message.responseType == 3){
                     console.log(g_message)
-                    $(document).ready(function(){
                         $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
                             $("#recommendationNotification").fadeOut("fast");
                             $("#accidentNotification").fadeOut("fast");
@@ -291,24 +293,32 @@ var app = {
                             $("#dismissRecommendationNotification").click(function(e){
                             $("#recommendationNotification").fadeOut("fast");
                             });
-                    });
+                    
                 }
                 else if(g_message.responseType == 4){
                     console.log(g_message)
-                    $(document).ready(function(){
+                       
                         $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
+                          
+                    
                             $("#recommendationNotification").fadeOut("fast");
                             $("#accidentNotification").fadeOut("fast");
                             $("#timeNotInRangeNotification").fadeIn("slow");
                             $("#timeNotInRangeNotificationMessage").replaceWith('<p id="timeNotInRangeNotificationMessage">'+g_message.message+'</p>');
+                           
                             $("#dismissTimeNotInRangeNotification").click(function(e){
+                           
                                 $("#timeNotInRangeNotification").fadeOut("fast");
                                 $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage'));
+                                //EDITED LINES, ADDED THE true AS ARGUMENT, WILL REMOVE THE CACHE
+                                // FOR THE ISSUE ABOVE OR BELOW 2nd ATTEMPT FAILURE
+                                location.reload(true);
                             });
-                    });
+                    
                 }     
             }
         })
+    
     },
 
     publish: function(App_message) {
@@ -325,5 +335,4 @@ var app = {
     },
 };
 
-app.initialize();
 

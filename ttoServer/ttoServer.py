@@ -11,7 +11,6 @@ import datetime
 from pubnub import Pubnub
 
 import threading
-import time
 
 import logging
 
@@ -19,7 +18,7 @@ pub_key ='pub-c-f2fc0469-ad0f-4756-be0c-e003d1392d43'
 sub_key ='sub-c-4d48a9d8-1c1b-11e6-9327-02ee2ddab7fe'
 
 
-LOG_FILENAME = 'TTOserverlogs.log'
+LOG_FILENAME = 'TTO_serverlogs.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG,format='%(asctime)s, %(levelname)s, %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
@@ -27,6 +26,7 @@ g_minit = 10
 g_sleepTime = 580
 g_divCompare = 3
 
+# Dictionaries and Lists to store the Data
 client_data = {}
 beforeJourneyClientList = {}
 startedJourneyClientList = {}
@@ -54,18 +54,18 @@ def publish_handler(channel,result):
 					if (pbreturn[0] == 1):
 						return None
 					elif(pbreturn[0] == 0):
-						logging.error("The publish return error  %s for the client %s"%(pbreturn[1],channel))
+						logging.error("The publish return error  %s for the client %s\n"%(pbreturn[1],channel))
 						pbtry+=1
 					else:
 						pass
 				except Exception as error_pdhandler:
-					logging.error("The error_pdhandler Exception is %s,%s"%(error_pdhandler,type(error_pdhandler)))
+					logging.error("The error_pdhandler Exception is %s,%s\n"%(error_pdhandler,type(error_pdhandler)))
 
 					pbtry+=1
 		else:
 			pass
 	except Exception as pubhandlerError:
-		logging.error("The publish function Exception is %s,%s,%s"%(pubhandlerError,type(pubhandlerError),str(result)))
+		logging.error("The publish function Exception is %s,%s,%s\n"%(pubhandlerError,type(pubhandlerError),str(result)))
 
 					
 
@@ -86,18 +86,18 @@ def alertpublish_handler(channel,result):
 						client_data[channel].update({"alertsentproceed":False})
 						return None
 					elif(pbreturn[0] == 0):
-						logging.error("The publish return error  %s for the client %s"%(pbreturn[1],channel))
+						logging.error("The publish return error  %s for the client %s\n"%(pbreturn[1],channel))
 						pbtry+=1
 					else:
 						pass
 				except Exception as error_pdhandler:
-					logging.error("The alerterror_pdhandler Exception is %s,%s"%(error_pdhandler,type(error_pdhandler)))
+					logging.error("The alerterror_pdhandler Exception is %s,%s\n"%(error_pdhandler,type(error_pdhandler)))
 
 					pbtry+=1
 		else:
 			pass
 	except Exception as alertpubhandlerError:
-		logging.error("The alertpublish function Exception is %s,%s,%s"%(alertpubhandlerError,type(alertpubhandlerError),str(result)))
+		logging.error("The alertpublish function Exception is %s,%s,%s\n"%(alertpubhandlerError,type(alertpubhandlerError),str(result)))
 
 				
 
@@ -145,7 +145,7 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 			dateproceed = False
 			result = {"responseType":4,"message":"oops!! Internal problem"}
 			publish_handler(clientID,result)
-			logging.error("The dateCursor error is %s,%s"%(e,type(e)))
+			logging.error("The dateCursor error is %s,%s\n"%(e,type(e)))
 
 		if dateproceed == True:
 
@@ -178,7 +178,7 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 					proceed = False
 					del client_data[clientID]
 			except Exception as e:
-				logging.error("The testdatacursor error is %s,%s"%(e,type(e)))
+				logging.error("The testdatacursor error is %s,%s\n"%(e,type(e)))
 				proceed = False
 				result = {"responseType":4,"message":"oops!! Internal problem"}
 				publish_handler(clientID,result)
@@ -260,20 +260,20 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 					for val in recommendationResult.keys():
 						recommresult.append(recommendationResult[val])
 					
-					pub_dict = {"responseType":1,"route_name":client_data[clientID]['routeName'],"arrival_time":str(DesiredArrivalTime),"recommendation":recommresult}
+					pub_dict = {"responseType":1,"route_name":client_data[clientID]['routeName'],"arrival_time":str(DesiredArrivalTime.replace(tzinfo=None)),"recommendation":recommresult}
 					publish_handler(client_data[clientID]["clientID"],pub_dict)
-					logging.info("The sent message for the recommendationmessage"+str(pub_dict))
-							
-
+					logging.info("The sent message for the recommendationmessage%s\n"%(str(pub_dict)))
+						
 					client_data[clientID].update({"recommndsentproceed":False})
 					
-					recommendedDepTimeAlgoFunc = []
-					for i in range(len(recommresult)):
-						recommendedDepTimeAlgoFunc.append(recommresult[i]["predictedDepartureTime"])
+					# recommendedDepTimeAlgoFunc = []
+					# for i in range(len(recommresult)):
+					# 	recommendedDepTimeAlgoFunc.append(recommresult[i]["predictedDepartureTime"])
 
-					return pub_dict,recommendedDepTimeAlgoFunc
+
+					# return pub_dict,recommendedDepTimeAlgoFunc
 				except Exception as e:
-					logging.error("The error occured in recommalgoinnerError is %s,%s"%(e,type(e)))
+					logging.error("The error occured in recommalgoinnerError is %s,%s\n"%(e,type(e)))
 			
 					result = {"responseType":4,"message":"oops!! Internal problem"}
 					publish_handler(clientID,result)
@@ -291,7 +291,7 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 		result = {"responseType":4,"message":"oops!! Internal problem"}
 		publish_handler(clientID,result)
 
-		logging.error("The error occured in recommalgoError is %s,%s"%(recommalgoError,type(recommalgoError)))
+		logging.error("The error occured in recommalgoError is %s,%s\n"%(recommalgoError,type(recommalgoError)))
 			
 
 
@@ -322,7 +322,7 @@ def Alerts(clientID,alert):
 				length = len(nedoc['traffic']['incidents'])
 			alertcursorproceed = True	
 		except Exception as e:
-			logging.error("The latestalertcursor error is %s,%s"%(e,type(e)))
+			logging.error("The latestalertcursor error is %s,%s\n"%(e,type(e)))
 
 		alertseverity = []
 		
@@ -343,7 +343,7 @@ def Alerts(clientID,alert):
 			
 
 			alertpub_dict = {"responseType":2,"message":alertList}
-			logging.info("AlertsMessage-->"+str(alertpub_dict)+str(clientID))
+			logging.info("AlertsMessage-->%s,%s\n"%(str(alertpub_dict),str(clientID)))
 			# if there are any alerts then send or dont
 			if (len(alertList)>0):
 				if alert == True:
@@ -354,8 +354,8 @@ def Alerts(clientID,alert):
 			pass				
 
 	except Exception as alertError:
-		logging.error("The error occured in alertError is %s,%s"%(alertError,type(alertError)))
-		logging.info(nedoc)				
+		logging.error("The error occured in alertError is %s,%s\n"%(alertError,type(alertError)))
+		logging.info(str(nedoc)+"\n")				
 
 
 
@@ -370,6 +370,8 @@ def beforeJourneyTenminUpdate():
 		i = 0
 		while True:
 			if (len(beforeJourneyClientList.keys())>0):
+
+
 				for cid in beforeJourneyClientList.keys():
 					numofclients = len(beforeJourneyClientList.keys())
 					
@@ -377,12 +379,16 @@ def beforeJourneyTenminUpdate():
 						if i<numofclients:
 							try:
 								if(int(datetime.datetime.now(pytz.timezone(client_data[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
-									client_data[cid].update({"everyTenminproceed":True})
+									
+									if cid in client_data.keys():
+										client_data[cid].update({"everyTenminproceed":True})
+									else:
+										pass
 									i+=1
 								else:
 									pass
 							except Exception as e:
-								logging.error("The beforeJourneyTenminUpdateinternalError Exception is %s,%s,%s"%(e,type(e)))
+								logging.error("The beforeJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))
  
 								pass
 
@@ -393,9 +399,10 @@ def beforeJourneyTenminUpdate():
 						pass		
 										
 			else:
+				
 				pass
 	except Exception as beforeJourneyTenminUpdateError:			
-		logging.error("The error occured in beforeJourneyTenminUpdateError is %s,%s"%(beforeJourneyTenminUpdateError,type(beforeJourneyTenminUpdateError)))
+		logging.error("The error occured in beforeJourneyTenminUpdateError is %s,%s\n"%(beforeJourneyTenminUpdateError,type(beforeJourneyTenminUpdateError)))
 					
 
 
@@ -410,19 +417,28 @@ def startedJourneyTenminUpdate():
 		i = 0
 		while True:
 			if (len(startedJourneyClientList.keys())>0):
+				
 				for cid in startedJourneyClientList.keys():
 					if cid in commonStartedClientIDList:	
 						numofclients = len(startedJourneyClientList.keys())
 						if i<numofclients:
 							try:	
 								if (int(datetime.datetime.now(pytz.timezone(client_data[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
-									startedJourneyClientList[cid].update({"alertsentproceed":True})
-									client_data[cid].update({"everyTenminproceed":True})
+									
+									if cid in startedJourneyClientList.keys():
+										startedJourneyClientList[cid].update({"alertsentproceed":True})
+									else:
+										pass
+									if cid in client_data.keys():
+										client_data[cid].update({"everyTenminproceed":True})
+									else:
+										pass
+									i+=1	
 								else:
 									pass
 							except Exception as e:
 								
-								logging.error("The startedJourneyTenminUpdateinternalError Exception is %s,%s,%s"%(e,type(e)))	
+								logging.error("The startedJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))	
 								pass		
 							
 
@@ -433,9 +449,10 @@ def startedJourneyTenminUpdate():
 					else:
 						pass	
 			else:
+				
 				pass
 	except Exception as startedJourneyTenminUpdateError:			
-		logging.error("The error occured in startedJourneyTenminUpdateError is %s,%s"%(startedJourneyTenminUpdateError,type(startedJourneyTenminUpdateError)))
+		logging.error("The error occured in startedJourneyTenminUpdateError is %s,%s\n"%(startedJourneyTenminUpdateError,type(startedJourneyTenminUpdateError)))
 				
 
 		
@@ -460,7 +477,7 @@ def stopJourney(stpCid):
 			index = commonStartedClientIDList.index(delCid)
 			del commonStartedClientIDList[index]
 	except Exception as stopJourneyError:
-		logging.error("The error occured in stopJourneyError is %s,%s"%(stopJourneyError,type(stopJourneyError)))				
+		logging.error("The error occured in stopJourneyError is %s,%s\n"%(stopJourneyError,type(stopJourneyError)))				
 
 
 
@@ -476,6 +493,7 @@ def recommendationAlertFunc(recommtime,cid,pred_minutesReal):
 		recommendationAlertPredictions = []
 		recommendationAlertTime = []
 		
+
 		cursor = newttobackground.ttoresultcoll.find({"route":client_data[cid]['routeName']})
 		
 		for doc in cursor:
@@ -492,15 +510,15 @@ def recommendationAlertFunc(recommtime,cid,pred_minutesReal):
 		
 		if pred_minutesReal == val:
 
-			logging.info("recommendationAlertMessage--> no change"+str(val)+str(pred_minutesReal))
+			logging.info("recommendationAlertMessage--> no change%s,%s\n"(str(val),str(pred_minutesReal)))
 			return 1,0
 		else:
 			diff = pred_minutesReal - val
 			
-			logging.info("recommendationAlertMessage-->change in predictions"+str(val)+str(pred_minutesReal)+str(float(diff)/60.0))
+			logging.info("recommendationAlertMessage-->change in predictions %s,%s,%s\n"%(str(val),str(pred_minutesReal),str(float(diff)/60.0)))
 			return 0,float(diff)/60.0
 	except Exception as recommendationAlertFuncError:
-		logging.error("The error occured in recommendationAlertFuncError is %s,%s"%(recommendationAlertFuncError,type(recommendationAlertFuncError)))
+		logging.error("The error occured in recommendationAlertFuncError is %s,%s\n"%(recommendationAlertFuncError,type(recommendationAlertFuncError)))
 		
 
 
@@ -513,6 +531,7 @@ Description		:	Function responsible for updates regarding the change in Recommen
 def beforeJourney():
 	try:
 		global g_minit,g_divCompare
+
 		while True:
 			if (len(beforeJourneyClientList.keys())>0):
 				for cid in beforeJourneyClientList.keys():
@@ -527,7 +546,7 @@ def beforeJourney():
 						diffMin = (diff.days * 24 * 60) + (diff.seconds/60)
 							
 						# executes every10min thats why one more condition checking for 10mins
-						if (10<=diffMin<= 720):
+						if (0<=diffMin<= 720):
 							val = datetime.datetime.now(pytz.timezone(localDict['timeZone'])).strftime("%M")
 							if (int(val)%g_minit == g_divCompare and localDict['everyTenminproceed'] == True):#make sure you are dividing with 10 for the 10min purpose
 								arrivalTime = datetime.datetime.strptime(localDict["arrivalTime"], "%Y-%m-%d %H:%M:%S")
@@ -541,7 +560,7 @@ def beforeJourney():
 								existedRecommendation = existedRecommendation.replace(tzinfo=None)
 								
 								result,val = recommendationAlertFunc(existedRecommendation,cid,existedpredminutesReal)
-								logging.info("beforejourneyMessage-->clients now"+str(cid))
+								logging.info("beforejourneyMessage-->clients now%s\n"%(str(cid)))
 								if result == 0:#Different prediction 
 									localDict.update({"recommndsentproceed":True})
 									# means new recommendation
@@ -552,7 +571,7 @@ def beforeJourney():
 										message = {"responseType":3,"message":"You should start %smin after %s"%(int(val),str(recommendedTime.replace(second=0,tzinfo=None)))}
 									if val < 0:	
 										message = {"responseType":3,"message":"You should start %smin earlier than %s "%(abs(int(val)),str(recommendedTime.replace(second=0,tzinfo=None)))}
-									logging.info("recommendationAlert -->"+str(message))
+									logging.info("recommendationAlert -->%s"%(str(message)))
 									publish_handler(cid,message)
 								else:
 									# # means new recommendation
@@ -577,11 +596,12 @@ def beforeJourney():
 					else:
 						#  it means client started the journey moved to startjourneylist
 						del beforeJourneyClientList[cid]
+						
 			else:
 				pass
 
 	except Exception as beforejourneyError:								
-		logging.error("The error occured in beforejourneyError is %s,%s"%(beforejourneyError,type(beforejourneyError)))
+		logging.error("The error occured in beforejourneyError is %s,%s\n"%(beforejourneyError,type(beforejourneyError)))
 
 
 
@@ -594,26 +614,29 @@ def startedJourney():
 	try:	
 		global g_minit,g_sleepTime,g_divCompare
 		while True:
-			if (len(startedJourneyClientList.keys())>0):
+			if (len(startedJourneyClientList.keys()) == len(commonStartedClientIDList)):
 				for strtCid in startedJourneyClientList.keys():
+					
 					if strtCid in commonStartedClientIDList:
+						
 						presentrouteTimeminute = int(datetime.datetime.now(pytz.timezone(client_data[strtCid]['timeZone'])).strftime("%M"))
-						logging.info("startedJourneyMessage--> Clients now"+str(strtCid))
 						if (presentrouteTimeminute%g_minit == g_divCompare and client_data[strtCid]['everyTenminproceed'] == True):
+							logging.info("startedJourneyMessage--> Clients now%s\n"%(str(strtCid)))
+						
 							Alerts(strtCid,True)
 							client_data[strtCid].update({"everyTenminproceed":False})	
-								
-						else:
-							
-							pass
-					else:
-						del startedJourneyClientList[strtCid]
-						
+									
 					
 			else:
-				pass
+				for strtCid in startedJourneyClientList.keys():
+					if strtCid not in commonStartedClientIDList:
+						del startedJourneyClientList[strtCid]
+					else:
+						pass		
+				
+
 	except Exception as startedJourneyError:
-		logging.error("The error occured in startedJourneyError is %s,%s"%(startedJourneyError,type(startedJourneyError)))
+		logging.error("The error occured in startedJourneyError is %s,%s\n"%(startedJourneyError,type(startedJourneyError)))
 							
 
 
@@ -623,33 +646,71 @@ Description		:	Function responsible to delete the expired clients
 ****************************************************************************************'''
 def delCheck():
 	try:
-		global g_sleepTime
+		global g_sleepTime,g_minit
+		i=0
 		while True:
 			if len(client_data.keys())>0:
 				
 				for clientID in client_data.keys():
-					DAT = datetime.datetime.strptime(client_data[clientID]["arrivalTime"], "%Y-%m-%d %H:%M:%S")	
-					
-					zone = pytz.timezone(client_data[clientID]["timeZone"])
-					DAT = zone.localize(DAT)
-					
-					presentrouteTime =  datetime.datetime.now(pytz.timezone(client_data[clientID]['timeZone']))
-					diff = DAT - presentrouteTime 
-					diff_minutes = (diff.days *24*60)+(diff.seconds/60)
-					if diff_minutes < 0:
-						
-						if clientID in client_data.keys():
-							logging.info("delCheckMessage--> Something to Delete"+str(clientID)+str(DAT))
-							del client_data[clientID]
-						
+
+					numofclients = len(client_data.keys())
+					if i<numofclients:
+
+						if (int(datetime.datetime.now(pytz.timezone(client_data[clientID]['timeZone'])).strftime("%M"))%g_minit == 0):
+							
+							if clientID in client_data.keys():
+								DAT = datetime.datetime.strptime(str(client_data[clientID]["arrivalTime"]), "%Y-%m-%d %H:%M:%S")	
+								
+								zone = pytz.timezone(client_data[clientID]["timeZone"])
+								DAT = zone.localize(DAT)
+								# Deleting the clients that crossed the Arrival time range.
+								travelTime = int(client_data[clientID]['theoryTime'])+3600
+								journeyEndTime = DAT + datetime.timedelta(seconds=travelTime)# journey time with extra 20min buffer
+							
+								presentrouteTime =  datetime.datetime.now(pytz.timezone(client_data[clientID]['timeZone']))
+												
+								diff = journeyEndTime - presentrouteTime 
+								diff_minutes = (diff.days *24*60)+(diff.seconds/60)		
+								
+								if diff_minutes<=0:
+							
+									# clearing the startedJourneyList dictionary.
+									if clientID in startedJourneyClientList.keys():
+										logging.info("delCheckMessage--> Something to Delete in startedJourneyClientList %s,%s\n"%(str(clientID),str(DAT)))
+										del startedJourneyClientList[clientID]
+									else:
+										pass	
+									#clearing the commonStartedClientIDList. 
+									if clientID in commonStartedClientIDList:
+										index = commonStartedClientIDList.index(clientID)
+										del commonStartedClientIDList[index]
+									else:
+										pass	
+
+
+
+									
+								else:
+									# timerange over checking else part
+									logging.info("delCheckMessage--> Nothing to Delete%s,%s\n"%(str(clientID),str(DAT)))
+									pass
+							else:
+								# client_data keys checking else part
+								pass
+							
+							i+=1
+										
+						else:
+							# entered 10min interval checking else part
+							pass				
 					else:
-						logging.info("delCheckMessage--> Nothing to Delete"+str(clientID)+str(DAT))
-						pass
-				time.sleep(g_sleepTime)		
+						i=0
+						time.sleep(g_sleepTime)		
 			else:
+				# any clients are there or not checking else part
 				pass
 	except Exception as delCheckError:
-		logging.error("The error occured in delCheckError is %s,%s"%(delCheckError,type(delCheckError)))				
+		logging.error("The error occured in delCheckError is %s,%s\n"%(delCheckError,type(delCheckError)))				
 
 
 
@@ -663,7 +724,7 @@ Parameters 		:	message - message from the client
 def tto_callback(message,channel):
 	try:
 		if message.has_key("requestType") and message.has_key("CID"):
-			logging.info(message)#printing the message we receive from the client
+			logging.info(str(message)+"\n")#printing the message we receive from the client
 			clientID = str(message['CID'])
 			requestType = int(message['requestType'])
 					
@@ -676,9 +737,14 @@ def tto_callback(message,channel):
 
 					routeName = str(message['routeName'])#only in requesttype 1 we will get it
 					# adding necessary client data
-					client_data[clientID] = {"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":message['arrivalTime'],"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False}	
+					# client_data[clientID] = {"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":str(message['arrivalTime']),"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False}	
+					
+					if not client_data.has_key(clientID):
+						client_data.setdefault(clientID,{"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":str(message['arrivalTime']),"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False})	
+
+
 					# datetime format
-					arrivalTime = datetime.datetime.strptime(message['arrivalTime'], "%Y-%m-%d %H:%M:%S")
+					arrivalTime = datetime.datetime.strptime(str(message['arrivalTime']), "%Y-%m-%d %H:%M:%S")
 					# adding timezone using localizing technique
 					zone = pytz.timezone(client_data[clientID]["timeZone"])
 					arrivalTime = zone.localize(arrivalTime)
@@ -687,15 +753,19 @@ def tto_callback(message,channel):
 
 				if requestType == 2: #request for starting the journey
 					
-					startTime = datetime.datetime.strptime(message["startTime"],"%Y-%m-%d %H:%M:%S")
+					startTime = datetime.datetime.strptime(str(message["startTime"]),"%Y-%m-%d %H:%M:%S")
 					
 					zone = pytz.timezone(client_data[clientID]["timeZone"])
 					arrivalTime = zone.localize(startTime)
 					
 					
-					startedJourneyClientList.update({clientID:{"clientID":clientID,"recommendedTime":startTime}})
+					# startedJourneyClientList.update({clientID:{"clientID":clientID,"recommendedTime":startTime}})
+					if not startedJourneyClientList.has_key(clientID):
+						startedJourneyClientList.setdefault(clientID,{"clientID":clientID,"recommendedTime":arrivalTime})
+					
 					# updating alertsentproceed so the alerts will work for the client
 					client_data[clientID].update({"alertsentproceed":True}) 
+					
 					# callling the alertsent function 
 					Alerts(clientID,True)
 					
@@ -709,6 +779,7 @@ def tto_callback(message,channel):
 					if clientID not in commonStartedClientIDList:
 						commonStartedClientIDList.append(clientID)
 
+					logging.info("The clients in startedJourney stage %s\n"%(str(startedJourneyClientList)))	
 				if requestType == 3: #when clients ends the journey
 					stpCid = str(message['CID'])
 					stopJourney(stpCid)			
@@ -719,12 +790,16 @@ def tto_callback(message,channel):
 					zone = pytz.timezone(client_data[clientID]["timeZone"])
 					recommendedDepTime = zone.localize(recommendedDepTime)
 					
-					beforeJourneyClientList[clientID] = {"clientID":clientID,"recommendedDepTime":recommendedDepTime,"pred_minutesReal":message['pred_minutesReal']}				
+					# beforeJourneyClientList[clientID] = {"clientID":clientID,"recommendedDepTime":recommendedDepTime,"pred_minutesReal":message['pred_minutesReal']}				
 					
+					if not beforeJourneyClientList.has_key(clientID):
+						beforeJourneyClientList.setdefault(clientID,{"clientID":clientID,"recommendedDepTime":recommendedDepTime,"pred_minutesReal":message['pred_minutesReal']})
+					
+
+					logging.info("The clients in the beforeJourney stage%s\n"%(str(beforeJourneyClientList)))
 					
 			else:
-				# clientID = str(message['CID'])
-				# requestType = int(message['requestType'])
+				
 				
 				if requestType == 1:
 					
@@ -733,7 +808,12 @@ def tto_callback(message,channel):
 
 					routeName = str(message['routeName'])#only in requesttype 1 we will get it
 					# adding necessary client data
-					client_data[clientID] = {"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":message['arrivalTime'],"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False}	
+					# client_data[clientID] = {"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":str(message['arrivalTime']),"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False}	
+					
+					if not client_data.has_key(clientID):
+						client_data.setdefault(clientID,{"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":str(message['arrivalTime']),"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False})
+
+
 					# datetime format
 					arrivalTime = datetime.datetime.strptime(message['arrivalTime'], "%Y-%m-%d %H:%M:%S")
 					# adding timezone using localizing technique
@@ -744,9 +824,7 @@ def tto_callback(message,channel):
 		else:
 			pass		
 	except Exception as callbackError:
-		result = {"responseType":4,"message":"oops!! Internal problem"}
-		publish_handler(clientID,result)
-		logging.error("The error occured in callbackError is %s,%s"%(callbackError,type(callbackError)))
+		logging.error("The error occured in callbackError is %s,%s\n"%(callbackError,type(callbackError)))
 
 					
 		
@@ -759,7 +837,7 @@ Description		:	If error in the channel, prints the error
 Parameters 		:	message - error message
 ****************************************************************************************'''
 def error(message):
-    logging.error("ERROR on Pubnub: " + str(message))
+    logging.error("ERROR on Pubnub: " + str(message)+"\n")
 
 '''****************************************************************************************
 Function Name 	:	connect
@@ -767,7 +845,7 @@ Description		:	Responds if server connects with pubnub
 Parameters 		:	message - connect message
 ****************************************************************************************'''	
 def connect(message):
-	logging.info("CONNECTED")
+	logging.info("CONNECTED\n")
 
 '''****************************************************************************************
 Function Name 	:	reconnect
@@ -775,7 +853,7 @@ Description		:	Responds if server reconnects with pubnub
 Parameters 		:	message - reconnect message
 ****************************************************************************************'''	
 def reconnect(message):
-    logging.info("RECONNECTED")
+    logging.info("RECONNECTED\n")
 
 '''****************************************************************************************
 Function Name 	:	disconnect
@@ -783,7 +861,7 @@ Description		:	Responds if server disconnects from pubnub
 Parameters 		:	message - disconnect message
 ****************************************************************************************'''
 def disconnect(message):
-     logging.info("DISCONNECTED")
+     logging.info("DISCONNECTED\n")
 
 
 
@@ -797,7 +875,7 @@ def channel_subscriptions():
 		pubnub.subscribe(channels='ttotest1', callback=tto_callback,error=error,
 		connect=connect, reconnect=reconnect, disconnect=disconnect)
 	except Exception as channelsubserror:
-		logging.error("The error occured in channel_subscriptions is %s,%s"%(channelsubserror,type(channelsubserror)))
+		logging.error("The error occured in channel_subscriptions is %s,%s\n"%(channelsubserror,type(channelsubserror)))
 
 
 '''****************************************************************************************
@@ -811,9 +889,9 @@ def mongoInit():
 		client = MongoClient(uri)
 		newttobackground = client.newttobackground
 		
-		logging.info('connected')
+		logging.info('connected\n')
 	except Exception as e:
-		logging.error("The error occured in mongoInit is %s,%s"%(e,type(e)))
+		logging.error("The error occured in mongoInit is %s,%s\n"%(e,type(e)))
 
 
 '''****************************************************************************************
@@ -827,7 +905,7 @@ def pub_Init():
 		pubnub = Pubnub(publish_key=pub_key,subscribe_key=sub_key) 
 		return True
 	except Exception as pubException:
-		logging.error("The pubException is %s,%s"%(pubException,type(pubException)))
+		logging.error("The pubException is %s,%s\n"%(pubException,type(pubException)))
 
 		return False
 
@@ -840,7 +918,7 @@ def Init():
 	dBreturn = mongoInit()
 	pbreturn = pub_Init()
 	if (dBreturn == False or pbreturn == False):
-		logging.info("Program Terminated")
+		logging.info("Program Terminated\n")
 		sys.exit()
 	else:
 		channel_subscriptions()	
@@ -861,5 +939,5 @@ if __name__ == '__main__':
 		f5.start()
 		f6.start()
 	except Exception as e:
-		logging.error("The main Exception is %s,%s"%(e,type(e)))
+		logging.error("The main Exception is %s,%s\n"%(e,type(e)))
 	

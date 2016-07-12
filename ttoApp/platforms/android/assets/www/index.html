@@ -16,6 +16,7 @@
      	<script src="lib/moment.min.js"></script>
      	<script src="lib/moment-duration-format.js"></script>
      	<script src="lib/moment-timezone/builds/moment-timezone-with-data-2010-2020.min.js"></script>
+     	<script type="text/javascript" src="js/index.js"></script>>
 	</head>
 	
 	<body>
@@ -29,13 +30,17 @@
 					<form id="form">
 						<div class="form-main-style">
 							<div class="form-style">
+								<!-- ADDED Select Route instead of select Route -->
 		                    	<label for="route">Select Route</label>
 		                    </div>
-	                        <select id="selectRoute" class="opts">
-	                            <option selected="selected" value="select">select</option>
-	                            <option value="NEWARK-EDISON">NEWARK-EDISON</option>
-	                            <option value="BROOKLYN-DENVILLE">BROOKLYN-DENVILLE</option>
-	                            <option value="MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL">MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL</option>
+	                        <select id="SelectRoute" class="opts">
+	                        	<!-- ADDED Select instead of select -->
+	                            <option selected="selected" value="Select">Select</option>
+	                            <!-- EDITED THESE LINES -->
+	                            <option value="NEWARK-EDISON">NEWARK To EDISON</option>
+	                            <option value="BROOKLYN-DENVILLE">BROOKLYN To DENVILLE</option>
+	                            <option value="MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL">MOUNTZION RADIOLOGY CENTER To SF GENERAL HOSPITAL</option>
+	                            <!-- TILL HERE -->
 	                        </select></br>
 	                        <div class= "form-style">
 	                        	<label for="arrivalTime">Desired Arrival Time</label>
@@ -61,7 +66,9 @@
 					            else {
 					                $('#register').prop('disabled', true);
 					            }
+
 					        });
+					        app.initialize();
 						});
 					</script>
 				</div>
@@ -73,6 +80,11 @@
 				<a href="#" id="backButton" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-btn-icon-notext ui-icon-back" data-inline="true" onclick="app.backButton()">back</a>
 				<h4>Travel Time <br> Optimizer</h4>
 			</div>
+
+			<!--	EMPTY PAGE FOR THE WAITING FOR RECOMMENDATIONS MESSAGE  -->
+		<div data-role="page" id="emptypage"></div>	
+
+
 			<div class="container">
 				<div data-role="main">
 					<div>
@@ -119,8 +131,9 @@
             	<p style="color: red;">Recommendation Alert !!!<img src="img/close.png" id="dismissRecommendationNotification" align="right" style="padding:0px 5px 0px;"/></p>
             	<p id="recommendationNotificationMessage"></p>
 			</div>
+
 			<div id="timeNotInRangeNotification" style="display: none;">
-            	<p style="color: black;">Time Not in Range Alert !!!<img src="img/close.png" id="dismissTimeNotInRangeNotification" align="right" style="padding:0px 5px 0px;"/></p>
+            	<p style="color: black;">Time out of Range <img src="img/close.png" id="dismissTimeNotInRangeNotification" align="right" style="padding:0px 5px 0px;"/></p>
             	<p id="timeNotInRangeNotificationMessage"></p>
 			</div>
 		</div>

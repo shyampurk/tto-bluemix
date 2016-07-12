@@ -39,9 +39,8 @@
 	                            <!-- EDITED THESE LINES -->
 	                            <option value="NEWARK-EDISON">NEWARK To EDISON</option>
 	                            <option value="BROOKLYN-DENVILLE">BROOKLYN To DENVILLE</option>
-	                            <option value="MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL">MOUNTZION RADIOLOGY CENTER To SF GENERAL HOSPITAL
+	                            <option value="MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL">MOUNTZION RADIOLOGY CENTER To SF GENERAL HOSPITAL</option>
 	                            <!-- TILL HERE -->
-	                            </option>
 	                        </select></br>
 	                        <div class= "form-style">
 	                        	<label for="arrivalTime">Desired Arrival Time</label>
@@ -67,7 +66,9 @@
 					            else {
 					                $('#register').prop('disabled', true);
 					            }
+
 					        });
+					        app.initialize();
 						});
 					</script>
 				</div>
@@ -80,6 +81,7 @@
 				<h4>Travel Time <br> Optimizer</h4>
 			</div>
 
+			<!--	EMPTY PAGE FOR THE WAITING FOR RECOMMENDATIONS MESSAGE  -->
 		<div data-role="page" id="emptypage"></div>	
 
 
