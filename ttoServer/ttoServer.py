@@ -190,102 +190,97 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 					timediffinsecs.append((((float(i)-(theorytimeinsecs)))+reminsecs))
 					timediffinminutes.append((((float(j)-(theorytimeinminutes)))+reminminutes))
 				
+				DesiredArrivalTimeIndexInList = -1
+				
 				for i in range(len(time)):
 					if (int(DesiredArrivalTime.strftime("%H")) == int(time[i].strftime("%H")) and int(DesiredArrivalTime.strftime("%M")) == int(time[i].strftime("%M"))):
 						DesiredArrivalTimeIndexInList = time.index(time[i])
 								
 				try:
-						
-					pred_minutes = []
-					for i in range(len(timediffinminutes)):
-						pred_minutes.append(float(timediffinminutes[i]+theorytimeinminutes))
-					
-
-					'''DISCUSSED METHOD'''
-					startpointIndex = int(DesiredArrivalTimeIndexInList-(theorytimeinminutes/10))
-					
-					
-
-					i = startpointIndex
-					recommendationFlag = True
-					checkedOnce = []
-					recommendationResult = {}
-					listlen = len(time)
-					j = 0
-					while (recommendationFlag == True):
-					
-						predictedArrivalTime = time[i]+datetime.timedelta(minutes=pred_minutes[i])
-						replaceapproach = predictedArrivalTime.replace(tzinfo=pytz.timezone(client_data[clientID]['timeZone']))
-						zone = pytz.timezone(client_data[clientID]["timeZone"])
-						predictedArrivalTime = zone.localize(predictedArrivalTime)
-						
-						diff = DesiredArrivalTime - predictedArrivalTime
-
-						diff_minutes = (diff.days *24*60)+(diff.seconds/60)
-
-						
-						
-						if (diff_minutes == 0): #This condition is the top priority
-							pred_minutesReal = pred_minutes[i]-reminminutes
-							recommendationResult.update({"onTime":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach ontime","pred_minutesReal":pred_minutesReal}})		
-							recommendationFlag = False
-
-						elif (0<=diff_minutes<=10):
-							pred_minutesReal = pred_minutes[i]-reminminutes
-							if(time[i] not in checkedOnce):
-								
-								checkedOnce.append(time[i])
-								recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
-								i+=1#This line should be here
-							else:
-								recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
-								recommendationFlag = False
+					if DesiredArrivalTimeIndexInList != -1:		
+						pred_minutes = []
+						for i in range(len(timediffinminutes)):
+							pred_minutes.append(float(timediffinminutes[i]+theorytimeinminutes))
 						
 
-						else:
-							pred_minutesReal = pred_minutes[i]-reminminutes
-							if (time[i] not in checkedOnce):
-								
-								checkedOnce.append(time[i])
-								recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
-								i-=1 #This line should be here
-							else:
-								recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
-								recommendationFlag = False
+						'''DISCUSSED METHOD'''
+						startpointIndex = int(DesiredArrivalTimeIndexInList-(theorytimeinminutes/10))
+						
+						
+
+						i = startpointIndex
+						recommendationFlag = True
+						checkedOnce = []
+						recommendationResult = {}
+						listlen = len(time)
+						j = 0
+						while (recommendationFlag == True):
+						
+							predictedArrivalTime = time[i]+datetime.timedelta(minutes=pred_minutes[i])
+							replaceapproach = predictedArrivalTime.replace(tzinfo=pytz.timezone(client_data[clientID]['timeZone']))
+							zone = pytz.timezone(client_data[clientID]["timeZone"])
+							predictedArrivalTime = zone.localize(predictedArrivalTime)
+							
+							diff = DesiredArrivalTime - predictedArrivalTime
+
+							diff_minutes = (diff.days *24*60)+(diff.seconds/60)
 
 							
-					
-					recommresult = []
-					
-					for val in recommendationResult.keys():
-						recommresult.append(recommendationResult[val])
-					
-					pub_dict = {"responseType":1,"route_name":client_data[clientID]['routeName'],"arrival_time":str(DesiredArrivalTime.replace(tzinfo=None)),"recommendation":recommresult}
-					publish_handler(client_data[clientID]["clientID"],pub_dict)
-					logging.info("The sent message for the recommendationmessage%s\n"%(str(pub_dict)))
+							
+							if (diff_minutes == 0): #This condition is the top priority
+								pred_minutesReal = pred_minutes[i]-reminminutes
+								recommendationResult.update({"onTime":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach ontime","pred_minutesReal":pred_minutesReal}})		
+								recommendationFlag = False
+
+							elif (0<=diff_minutes<=10):
+								pred_minutesReal = pred_minutes[i]-reminminutes
+								if(time[i] not in checkedOnce):
+									
+									checkedOnce.append(time[i])
+									recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
+									i+=1#This line should be here
+								else:
+									recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
+									recommendationFlag = False
+							
+
+							else:
+								pred_minutesReal = pred_minutes[i]-reminminutes
+								if (time[i] not in checkedOnce):
+									
+									checkedOnce.append(time[i])
+									recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
+									i-=1 #This line should be here
+								else:
+									recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
+									recommendationFlag = False
+
+								
 						
-					client_data[clientID].update({"recommndsentproceed":False})
-					
-					# recommendedDepTimeAlgoFunc = []
-					# for i in range(len(recommresult)):
-					# 	recommendedDepTimeAlgoFunc.append(recommresult[i]["predictedDepartureTime"])
+						recommresult = []
+						
+						for val in recommendationResult.keys():
+							recommresult.append(recommendationResult[val])
+						
+						pub_dict = {"responseType":1,"route_name":client_data[clientID]['routeName'],"arrival_time":str(DesiredArrivalTime.replace(tzinfo=None)),"recommendation":recommresult}
+						publish_handler(client_data[clientID]["clientID"],pub_dict)
+						logging.info("The sent message for the recommendationmessage%s\n"%(str(pub_dict)))
+							
+						client_data[clientID].update({"recommndsentproceed":False})
+						
+						# recommendedDepTimeAlgoFunc = []
+						# for i in range(len(recommresult)):
+						# 	recommendedDepTimeAlgoFunc.append(recommresult[i]["predictedDepartureTime"])
 
 
-					# return pub_dict,recommendedDepTimeAlgoFunc
+						# return pub_dict,recommendedDepTimeAlgoFunc
+						
 				except Exception as e:
 					logging.error("The error occured in recommalgoinnerError is %s,%s\n"%(e,type(e)))
 			
 					result = {"responseType":4,"message":"oops!! Internal problem"}
 					publish_handler(clientID,result)
-						
 
-			else:
-				# proceed else part
-				pass
-		else:
-			# dateproceed else part
-			pass		
-		
 
 	except Exception as recommalgoError:
 		result = {"responseType":4,"message":"oops!! Internal problem"}
@@ -365,46 +360,40 @@ Function Name 	:	beforeJourneyTenminUpdate  (Algorithm operation)
 Description		:	Function used invoke the beforeJourney function every ten minute
 ****************************************************************************************'''	
 def beforeJourneyTenminUpdate():
-	try:	
-		global g_minit,g_sleepTime,g_divCompare
-		i = 0
-		while True:
-			if (len(beforeJourneyClientList.keys())>0):
+	while True:
+		try:	
+			global g_minit,g_sleepTime,g_divCompare
+			i = 0
+			while True:
+				if (len(beforeJourneyClientList.keys())>0):
 
 
-				for cid in beforeJourneyClientList.keys():
-					numofclients = len(beforeJourneyClientList.keys())
-					
-					if cid in beforeJourneyClientList.keys():
-						if i<numofclients:
-							try:
-								if(int(datetime.datetime.now(pytz.timezone(client_data[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
-									
-									if cid in client_data.keys():
-										client_data[cid].update({"everyTenminproceed":True})
-									else:
-										pass
-									i+=1
-								else:
-									pass
-							except Exception as e:
-								print client_data,cid
-								logging.error("The beforeJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))
- 
-								pass
-
-						else:
-							i = 0
-							time.sleep(g_sleepTime)
-					else:
-						pass		
+					for cid in beforeJourneyClientList.keys():
+						numofclients = len(beforeJourneyClientList.keys())
+						
+						if cid in beforeJourneyClientList.keys():
+							if i<numofclients:
+								try:
+									if(int(datetime.datetime.now(pytz.timezone(client_data[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
 										
-			else:
+										if cid in client_data.keys():
+											client_data[cid].update({"everyTenminproceed":True})
+										
+										i+=1
+									
+								except Exception as e:
+									print client_data,cid
+									logging.error("The beforeJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))
+	 
+									
+
+							else:
+								i = 0
+								time.sleep(g_sleepTime)
 				
-				pass
-	except Exception as beforeJourneyTenminUpdateError:			
-		logging.error("The error occured in beforeJourneyTenminUpdateError is %s,%s\n"%(beforeJourneyTenminUpdateError,type(beforeJourneyTenminUpdateError)))
-					
+		except Exception as beforeJourneyTenminUpdateError:			
+			logging.error("The error occured in beforeJourneyTenminUpdateError is %s,%s\n"%(beforeJourneyTenminUpdateError,type(beforeJourneyTenminUpdateError)))
+						
 
 
 '''****************************************************************************************
@@ -412,49 +401,41 @@ Function Name 	:	startedJourneyTenminUpdate (Algorithm operation)
 Description		:	Function used invoke the startedJourney function every ten minute
 ****************************************************************************************'''
 def startedJourneyTenminUpdate():	
-		
-	try:
-		global g_minit,g_sleepTime,g_divCompare
-		i = 0
-		while True:
-			if (len(startedJourneyClientList.keys())>0):
-				
-				for cid in startedJourneyClientList.keys():
-					if cid in commonStartedClientIDList:	
-						numofclients = len(startedJourneyClientList.keys())
-						if i<numofclients:
-							try:	
-								if (int(datetime.datetime.now(pytz.timezone(client_data[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
+	while True:		
+		try:
+			global g_minit,g_sleepTime,g_divCompare
+			i = 0
+			while True:
+				if (len(startedJourneyClientList.keys())>0):
+					
+					for cid in startedJourneyClientList.keys():
+						if cid in commonStartedClientIDList:	
+							numofclients = len(startedJourneyClientList.keys())
+							if i<numofclients:
+								try:	
+									if (int(datetime.datetime.now(pytz.timezone(client_data[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
+										
+										if cid in startedJourneyClientList.keys():
+											startedJourneyClientList[cid].update({"alertsentproceed":True})
+										
+										if cid in client_data.keys():
+											client_data[cid].update({"everyTenminproceed":True})
+										
+										i+=1	
 									
-									if cid in startedJourneyClientList.keys():
-										startedJourneyClientList[cid].update({"alertsentproceed":True})
-									else:
-										pass
-									if cid in client_data.keys():
-										client_data[cid].update({"everyTenminproceed":True})
-									else:
-										pass
-									i+=1	
-								else:
-									pass
-							except Exception as e:
+								except Exception as e:
+									
+									logging.error("The startedJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))	
+											
 								
-								logging.error("The startedJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))	
-								pass		
-							
 
-						else:
-							i = 0
-							time.sleep(g_sleepTime)
+							else:
+								i = 0
+								time.sleep(g_sleepTime)
 
-					else:
-						pass	
-			else:
-				
-				pass
-	except Exception as startedJourneyTenminUpdateError:			
-		logging.error("The error occured in startedJourneyTenminUpdateError is %s,%s\n"%(startedJourneyTenminUpdateError,type(startedJourneyTenminUpdateError)))
-				
+		except Exception as startedJourneyTenminUpdateError:			
+			logging.error("The error occured in startedJourneyTenminUpdateError is %s,%s\n"%(startedJourneyTenminUpdateError,type(startedJourneyTenminUpdateError)))
+					
 
 		
 
@@ -586,7 +567,7 @@ def beforeJourney():
 								else:
 									# # means new recommendation
 									localDict.update({"everyTenminproceed":False})
-									pass
+									
 											
 								
 								#Alerts
@@ -597,18 +578,12 @@ def beforeJourney():
 								# updating to main dictionary
 								if cid in client_data.keys():
 									client_data[cid].update({"recommndsentproceed":localDict["recommndsentproceed"],"everyTenminproceed":localDict["everyTenminproceed"]})
-								else:
-									pass	
-
-							else:
-								pass		
+									
 
 					else:
 						#  it means client started the journey moved to startjourneylist
 						del beforeJourneyClientList[cid]
-						
-			else:
-				pass
+			
 
 	except Exception as beforejourneyError:								
 		logging.error("The error occured in beforejourneyError is %s,%s\n"%(beforejourneyError,type(beforejourneyError)))
@@ -621,32 +596,37 @@ Function Name 	:	startedJourney (Algorithm operation)
 Description		:	Function responsible to send Alerts if any after journey starts
 ****************************************************************************************'''	
 def startedJourney():
-	try:	
-		global g_minit,g_sleepTime,g_divCompare
-		while True:
-			if (len(startedJourneyClientList.keys()) == len(commonStartedClientIDList)):
-				for strtCid in startedJourneyClientList.keys():
-					
-					if strtCid in commonStartedClientIDList:
+	while True:
+		try:	
+			global g_minit,g_sleepTime,g_divCompare
+			while True:
+				if (len(startedJourneyClientList.keys()) == len(commonStartedClientIDList)):
+					localDictStartedJourney = client_data
+					for strtCid in startedJourneyClientList.keys():
 						
-						presentrouteTimeminute = int(datetime.datetime.now(pytz.timezone(client_data[strtCid]['timeZone'])).strftime("%M"))
-						if (presentrouteTimeminute%g_minit == g_divCompare and client_data[strtCid]['everyTenminproceed'] == True):
-							logging.info("startedJourneyMessage--> Clients now%s\n"%(str(strtCid)))
-						
-							Alerts(strtCid,True)
-							client_data[strtCid].update({"everyTenminproceed":False})	
-									
-					
-			else:
-				for strtCid in startedJourneyClientList.keys():
-					if strtCid not in commonStartedClientIDList:
-						del startedJourneyClientList[strtCid]
-					else:
-						pass		
-				
+						if strtCid in commonStartedClientIDList:
 
-	except Exception as startedJourneyError:
-		logging.error("The error occured in startedJourneyError is %s,%s\n"%(startedJourneyError,type(startedJourneyError)))
+							
+							presentrouteTimeminute = int(datetime.datetime.now(pytz.timezone(localDictStartedJourney[strtCid]['timeZone'])).strftime("%M"))
+							if (presentrouteTimeminute%g_minit == g_divCompare and localDictStartedJourney[strtCid]['everyTenminproceed'] == True):
+								logging.info("startedJourneyMessage--> Clients now%s\n"%(str(strtCid)))
+							
+								Alerts(strtCid,True)
+								if strtCid in client_data.keys():
+									client_data[strtCid].update({"everyTenminproceed":False})
+										
+										
+						
+				else:
+					for strtCid in startedJourneyClientList.keys():
+						if strtCid not in commonStartedClientIDList:
+							del startedJourneyClientList[strtCid]
+						else:
+							pass		
+					
+
+		except Exception as startedJourneyError:
+			logging.error("The error occured in startedJourneyError is %s,%s\n"%(startedJourneyError,type(startedJourneyError)))
 							
 
 
@@ -655,74 +635,73 @@ Function Name 	:	delCheck  (Algorithm operation)
 Description		:	Function responsible to delete the expired clients
 ****************************************************************************************'''
 def delCheck():
-	try:
-		global g_sleepTime,g_minit
-		i=0
-		while True:
-			if len(client_data.keys())>0:
-				
-				for clientID in client_data.keys():
+	while True:
+		try:
+			global g_sleepTime,g_minit
+			i=0
+			while True:
+				if len(client_data.keys())>0:
+					localDictDelcheck = client_data
+					for clientID in localDictDelcheck.keys():
 
-					numofclients = len(client_data.keys())
-					if i<numofclients:
+						numofclients = len(localDictDelcheck.keys())
+						if i<numofclients:
 
-						if (int(datetime.datetime.now(pytz.timezone(client_data[clientID]['timeZone'])).strftime("%M"))%g_minit == 0):
-							
-							if clientID in client_data.keys():
-								DAT = datetime.datetime.strptime(str(client_data[clientID]["arrivalTime"]), "%Y-%m-%d %H:%M:%S")	
+							if (int(datetime.datetime.now(pytz.timezone(localDictDelcheck[clientID]['timeZone'])).strftime("%M"))%g_minit == 0):
 								
-								zone = pytz.timezone(client_data[clientID]["timeZone"])
-								DAT = zone.localize(DAT)
-								# Deleting the clients that crossed the Arrival time range.
-								travelTime = int(client_data[clientID]['theoryTime'])+3600
-								journeyEndTime = DAT + datetime.timedelta(seconds=travelTime)# journey time with extra 20min buffer
-							
-								presentrouteTime =  datetime.datetime.now(pytz.timezone(client_data[clientID]['timeZone']))
-												
-								diff = journeyEndTime - presentrouteTime 
-								diff_minutes = (diff.days *24*60)+(diff.seconds/60)		
-								
-								if diff_minutes<=0:
-							
-									# clearing the startedJourneyList dictionary.
-									if clientID in startedJourneyClientList.keys():
-										logging.info("delCheckMessage--> Something to Delete in startedJourneyClientList %s,%s\n"%(str(clientID),str(DAT)))
-										del startedJourneyClientList[clientID]
-									else:
-										pass	
-									#clearing the commonStartedClientIDList. 
-									if clientID in commonStartedClientIDList:
-										logging.info("delCheckMessage--> Something to Delete in commonStartedClientIDList %s,%s\n"%(str(clientID),str(DAT)))
-										
-										index = commonStartedClientIDList.index(clientID)
-										del commonStartedClientIDList[index]
-									else:
-										pass	
-
-
-
+								if clientID in localDictDelcheck.keys():
+									DAT = datetime.datetime.strptime(str(localDictDelcheck[clientID]["arrivalTime"]), "%Y-%m-%d %H:%M:%S")	
 									
-								else:
-									# timerange over checking else part
-									logging.info("delCheckMessage--> Nothing to Delete%s,%s\n"%(str(clientID),str(DAT)))
-									pass
-							else:
-								# client_data keys checking else part
-								pass
-							
-							i+=1
+									zone = pytz.timezone(localDictDelcheck[clientID]["timeZone"])
+									DAT = zone.localize(DAT)
+									# Deleting the clients that crossed the Arrival time range.
+									travelTime = int(localDictDelcheck[clientID]['theoryTime'])+3600
+									journeyEndTime = DAT + datetime.timedelta(seconds=travelTime)# journey time with extra 20min buffer
+								
+									presentrouteTime =  datetime.datetime.now(pytz.timezone(localDictDelcheck[clientID]['timeZone']))
+													
+									diff = journeyEndTime - presentrouteTime 
+									diff_minutes = (diff.days *24*60)+(diff.seconds/60)		
+									
+									if diff_minutes<=0:
+								
+										# clearing the startedJourneyList dictionary.
+										if clientID in startedJourneyClientList.keys():
+											logging.info("delCheckMessage--> Something to Delete in startedJourneyClientList %s,%s\n"%(str(clientID),str(DAT)))
+											del startedJourneyClientList[clientID]
+										else:
+											pass	
+										#clearing the commonStartedClientIDList. 
+										if clientID in commonStartedClientIDList:
+											logging.info("delCheckMessage--> Something to Delete in commonStartedClientIDList %s,%s\n"%(str(clientID),str(DAT)))
+											
+											index = commonStartedClientIDList.index(clientID)
+											del commonStartedClientIDList[index]
+										else:
+											pass	
+
+
+
 										
+									else:
+										# timerange over checking else part
+										logging.info("delCheckMessage--> Nothing to Delete%s,%s\n"%(str(clientID),str(DAT)))
+										pass
+								else:
+									# client_data keys checking else part
+									pass
+								
+								i+=1
+											
+							else:
+								# entered 10min interval checking else part
+								pass				
 						else:
-							# entered 10min interval checking else part
-							pass				
-					else:
-						i=0
-						time.sleep(g_sleepTime)		
-			else:
-				# any clients are there or not checking else part
-				pass
-	except Exception as delCheckError:
-		logging.error("The error occured in delCheckError is %s,%s\n"%(delCheckError,type(delCheckError)))				
+							i=0
+							time.sleep(g_sleepTime)		
+				
+		except Exception as delCheckError:
+			logging.error("The error occured in delCheckError is %s,%s\n"%(delCheckError,type(delCheckError)))				
 
 
 
