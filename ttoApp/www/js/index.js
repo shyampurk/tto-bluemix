@@ -3,7 +3,7 @@ var g_current_time
 var g_selectedRoute
 var g_routePoints
 // var CID = PUBNUB.uuid().toString();
-var CID = 'ciid2';
+var CID = 'new_chan';
 var app = {
 
     initialize: function() {
@@ -26,13 +26,7 @@ var app = {
 
     registerRoute: function() {
         $(document).ready(function(){   
-            
-            //EDITED THIS FUNCTION 
-            // 1) Select has been selected instead of route name
-            // 2) starting the secondpage in the else block 
-            // refer the old programs if something goes wrong
- 
-           	
+
             var routeID = document.getElementById("SelectRoute").value;
             var arrivalTime = document.getElementById("datetimepicker").value;
             
@@ -62,8 +56,6 @@ var app = {
 
             document.getElementById('selectedRoute').innerHTML = Server_message.route_name;
 
-            //EDITED THESE LINES
-            // BECAUSE WE CHANGED NEWARK-EDISON to  NEWARK To EDISON FOR THE UI PART
             if (Server_message.route_name == "NEWARK-EDISON"){
                 document.getElementById('selectedRoute').innerHTML = "NEWARK To EDISON";
                  }
@@ -74,7 +66,7 @@ var app = {
             else if (Server_message.route_name =="MOUNTZION RADIOLOGY CENTER-SF GENERAL HOSPITAL"){
                 document.getElementById('selectedRoute').innerHTML = "MOUNTZION RADIOLOGY CENTER To SF GENERAL HOSPITAL";
            
-            }//TILL HERE
+            }
             
 
             document.getElementById('arrTime').innerHTML =Server_message.arrival_time;
@@ -87,12 +79,39 @@ var app = {
                 $("#backButton").click();
             }
             else{
+                var recommLength = 0;
                 for(var i = 0; i < recommendation.length; i++) {
-                    //EDITED THIS LINE
-                    // JUST TO ADDED THE MESSAGE INFRONT OF THE OF THE TIME AND MADE EVERY MESSAGE BOLD
-                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgrey;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
+                    recommDepnoteLength = recommendation[i].dep_note.split(" ").length;
+                    console.log(recommDepnoteLength);
+                    if (recommendation[i].dep_note.split(" ")[recommDepnoteLength-1] == "ontime")
+                    {
+                      console.log('ontime');
+                       
+
+                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgreen;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
                    
                     }
+
+                    if (recommendation[i].dep_note.split(" ")[recommDepnoteLength-1] == "early")
+                    {
+                        console.log('early');
+                        
+                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgreen;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
+                   
+                    }
+
+                    if (recommendation[i].dep_note.split(" ")[recommDepnoteLength-1] == "late")
+                    {
+                        console.log('late');
+                        
+                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:#ff6666;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
+                       
+                    }
+                   
+
+                    
+                    }
+              
             }
             var selectedRoute = document.getElementById('selectedRoute').innerHTML   
                 $("#recommendation_0").click(function(e){
@@ -132,10 +151,7 @@ var app = {
         console.log(selectedRecommendaionMessage)
         app.publish(selectedRecommendaionMessage);
         g_selectedRoute = selectedRoute
-        // g_routePoints = g_selectedRoute.split("-");
-        // EDITED THIS LINE
-        // USED To TO SPLIT THE MESSAGE BECAUSE WE CHANGED THE ROUTE NAME
-        g_routePoints = g_selectedRoute.split("To"); //NEWLINE
+        g_routePoints = g_selectedRoute.split("To"); 
         
         console.log(g_selectedRoute)
             $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
@@ -219,7 +235,6 @@ var app = {
     resetRecommendation: function(){
         $("#journeyTrackRecommendList").remove(); 
         $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage')); 
-        //EDITED LINES FOR RESET ADDED THE true AS ARGUMENT,WILL REMOVE THE CACHE
         location.reload(true);
     },
 
@@ -229,7 +244,6 @@ var app = {
             app.publish(endJourneyMessage)
             $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage'));
             $("#journeyTrackRecommendList").remove();
-            //EDITED LINES, ADDED THE true AS ARGUMENT, WILL REMOVE THE CACHE
             location.reload(true);
         });
     },
@@ -253,8 +267,6 @@ var app = {
         var stopJourneyMessage = {"CID":CID,"requestType":3};
         app.publish(stopJourneyMessage)
         $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage'));
-        // setTimeout(location.reload(), 6000);
-        //EDITED LINES, ADDED THE true AS ARGUMENT, WILL REMOVE THE CACHE
         location.reload(true);
 
     },
@@ -264,7 +276,7 @@ var app = {
         pubnub.subscribe({                                     
             channel : CID,
             message : function(g_message){
-            // console.log(g_message);
+            
                 if(g_message.responseType == 1){
                 	$(':mobile-pagecontainer').pagecontainer('change', $('#secondpage'));        
            
@@ -288,7 +300,7 @@ var app = {
                         $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
                             $("#recommendationNotification").fadeOut("fast");
                             $("#accidentNotification").fadeOut("fast");
-                            $("#recommendationNotification").fadeIn("slow");                                             //message : THIS IS THERE IN DOWN LINE
+                            $("#recommendationNotification").fadeIn("slow");                                             
                             $("#recommendationNotificationMessage").replaceWith('<p id="recommendationNotificationMessage">'+g_message.message+'</p>');
                             $("#dismissRecommendationNotification").click(function(e){
                             $("#recommendationNotification").fadeOut("fast");
@@ -310,8 +322,7 @@ var app = {
                            
                                 $("#timeNotInRangeNotification").fadeOut("fast");
                                 $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage'));
-                                //EDITED LINES, ADDED THE true AS ARGUMENT, WILL REMOVE THE CACHE
-                                // FOR THE ISSUE ABOVE OR BELOW 2nd ATTEMPT FAILURE
+                               
                                 location.reload(true);
                             });
                     

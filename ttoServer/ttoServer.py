@@ -388,6 +388,7 @@ def beforeJourneyTenminUpdate():
 								else:
 									pass
 							except Exception as e:
+								print client_data,cid
 								logging.error("The beforeJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))
  
 								pass
@@ -492,32 +493,41 @@ def recommendationAlertFunc(recommtime,cid,pred_minutesReal):
 	try:	
 		recommendationAlertPredictions = []
 		recommendationAlertTime = []
-		
-
-		cursor = newttobackground.ttoresultcoll.find({"route":client_data[cid]['routeName']})
-		
-		for doc in cursor:
-			recommendationAlertPredictions.append(doc['predictioninmins'])
-			recommendationAlertTime.append(doc['time'])
-
-		if recommtime in recommendationAlertTime:
-			recommendationAlertIndex = recommendationAlertTime.index(recommtime)
-		
-
-		val = int(recommendationAlertPredictions[recommendationAlertIndex]) * 60
-		pred_minutesReal = int(pred_minutesReal) * 60
-
-		
-		if pred_minutesReal == val:
-
-			logging.info("recommendationAlertMessage--> no change%s,%s\n"(str(val),str(pred_minutesReal)))
-			return 1,0
-		else:
-			diff = pred_minutesReal - val
+		recommendationAlertIndex = -1	
+	
+		recommtime = recommtime.replace(second=0)
+		try:	
+			cursor = newttobackground.ttoresultcoll.find({"route":client_data[cid]['routeName']})
 			
-			logging.info("recommendationAlertMessage-->change in predictions %s,%s,%s\n"%(str(val),str(pred_minutesReal),str(float(diff)/60.0)))
-			return 0,float(diff)/60.0
+			for doc in cursor:
+				recommendationAlertPredictions.append(doc['predictioninmins'])
+				recommendationAlertTime.append(doc['time'].replace(second=0))
+
+			if recommtime in recommendationAlertTime:
+				recommendationAlertIndex = recommendationAlertTime.index(recommtime)
+			
+			
+		except Exception as e:
+			logging.error("The error occured in internal delCheck is %s,%s\n"%(e,type(e)))	
+		
+		if (recommendationAlertIndex != -1):
+			val = int(recommendationAlertPredictions[recommendationAlertIndex]) * 60
+			pred_minutesReal = int(pred_minutesReal) * 60
+
+			if pred_minutesReal == val:
+				logging.info("recommendationAlertMessage--> no change%s,%s\n"%(str(val),str(pred_minutesReal)))
+				return 1,0
+			else:
+				diff = pred_minutesReal - val
+				
+				logging.info("recommendationAlertMessage-->change in predictions %s,%s,%s\n"%(str(val),str(pred_minutesReal),str(float(diff)/60.0)))
+				return 0,float(diff)/60.0
+		else:
+			logging.info("The recommtime-->%s"%(str(recommtime)))
+			pass	
+
 	except Exception as recommendationAlertFuncError:
+
 		logging.error("The error occured in recommendationAlertFuncError is %s,%s\n"%(recommendationAlertFuncError,type(recommendationAlertFuncError)))
 		
 
@@ -682,6 +692,8 @@ def delCheck():
 										pass	
 									#clearing the commonStartedClientIDList. 
 									if clientID in commonStartedClientIDList:
+										logging.info("delCheckMessage--> Something to Delete in commonStartedClientIDList %s,%s\n"%(str(clientID),str(DAT)))
+										
 										index = commonStartedClientIDList.index(clientID)
 										del commonStartedClientIDList[index]
 									else:
@@ -758,16 +770,15 @@ def tto_callback(message,channel):
 					zone = pytz.timezone(client_data[clientID]["timeZone"])
 					arrivalTime = zone.localize(startTime)
 					
+					# sharing client id with started journey list so that there wont any problem for the dependency functions 
+					if clientID not in commonStartedClientIDList:
+						commonStartedClientIDList.append(clientID)
 					
 					# startedJourneyClientList.update({clientID:{"clientID":clientID,"recommendedTime":startTime}})
 					if not startedJourneyClientList.has_key(clientID):
 						startedJourneyClientList.setdefault(clientID,{"clientID":clientID,"recommendedTime":arrivalTime})
 					
-					# updating alertsentproceed so the alerts will work for the client
-					client_data[clientID].update({"alertsentproceed":True}) 
 					
-					# callling the alertsent function 
-					Alerts(clientID,True)
 					
 					# incase if the client started journey immeddiately before entering into the beforejourney list
 					if clientID in commonClientIDList:
@@ -775,9 +786,14 @@ def tto_callback(message,channel):
 						del commonClientIDList[index]
 						# del beforeJourneyClientList[message['CID']]
 					
-					# sharing client id with started journey list so that there wont any problem for the dependency functions 
-					if clientID not in commonStartedClientIDList:
-						commonStartedClientIDList.append(clientID)
+					# updating alertsentproceed so the alerts will work for the client
+					client_data[clientID].update({"alertsentproceed":True}) 
+						
+					
+					# callling the alertsent function 
+					Alerts(clientID,True)
+					
+				
 
 					logging.info("The clients in startedJourney stage %s\n"%(str(startedJourneyClientList)))	
 				if requestType == 3: #when clients ends the journey
