@@ -204,7 +204,7 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 						
 
 						'''DISCUSSED METHOD'''
-						startpointIndex = int(DesiredArrivalTimeIndexInList-(theorytimeinminutes/10))
+						startpointIndex = int(DesiredArrivalTimeIndexInList-((theorytimeinminutes+reminminutes)/10))
 						
 						
 
