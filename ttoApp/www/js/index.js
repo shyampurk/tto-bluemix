@@ -72,7 +72,6 @@ var app = {
             var recommendation = Server_message.recommendation;
             console.log("The receommendation we got from the server",recommendation)
             var pred_minutesReal_0 = recommendation[0].pred_minutesReal
-            // console.log(pred_minutesReal_0)
             if (recommendation.length <= 0){
                 alert("No Recommendation for the selected time !!!");
                 $("#backButton").click();
@@ -81,10 +80,10 @@ var app = {
                 var recommLength = 0;
                 for(var i = 0; i < recommendation.length; i++) {
                     recommDepnoteLength = recommendation[i].dep_note.split(" ").length;
-                    console.log("The recommendation Depnote length",recommDepnoteLength);
+                    console.log("The recommendation Departurenote length",recommDepnoteLength);
                     if (recommendation[i].dep_note.split(" ")[recommDepnoteLength-1] == "ontime")
                     {
-                      console.log('ontime');
+                      console.log('The recommendation for the client is -->ontime it will reach');
                        
 
                     $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgreen;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
@@ -93,7 +92,7 @@ var app = {
 
                     if (recommendation[i].dep_note.split(" ")[recommDepnoteLength-1] == "early")
                     {
-                        console.log('early');
+                        console.log('The recommendation for the client is -->early');
                         
                     $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgreen;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
                    
@@ -101,7 +100,7 @@ var app = {
 
                     if (recommendation[i].dep_note.split(" ")[recommDepnoteLength-1] == "late")
                     {
-                        console.log('late');
+                        console.log('The recommendation for the client is -->late');
                         
                     $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:#ff6666;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
                        
@@ -151,7 +150,7 @@ var app = {
         g_selectedRoute = selectedRoute
         g_routePoints = g_selectedRoute.split("To"); 
         
-        console.log(g_selectedRoute)
+        console.log("The selected route",g_selectedRoute)
             $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
             $("#journeytrackingCounter").fadeIn("fast").append(function(){app.timeCalculation(rec_depTime,selectedRoute)});
     },
