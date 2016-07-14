@@ -606,7 +606,6 @@ def startedJourney():
 						
 						if strtCid in commonStartedClientIDList:
 
-							
 							presentrouteTimeminute = int(datetime.datetime.now(pytz.timezone(localDictStartedJourney[strtCid]['timeZone'])).strftime("%M"))
 							if (presentrouteTimeminute%g_minit == g_divCompare and localDictStartedJourney[strtCid]['everyTenminproceed'] == True):
 								logging.info("startedJourneyMessage--> Clients now%s\n"%(str(strtCid)))
@@ -621,8 +620,7 @@ def startedJourney():
 					for strtCid in startedJourneyClientList.keys():
 						if strtCid not in commonStartedClientIDList:
 							del startedJourneyClientList[strtCid]
-						else:
-							pass		
+								
 					
 
 		except Exception as startedJourneyError:
@@ -669,16 +667,17 @@ def delCheck():
 										if clientID in startedJourneyClientList.keys():
 											logging.info("delCheckMessage--> Something to Delete in startedJourneyClientList %s,%s\n"%(str(clientID),str(DAT)))
 											del startedJourneyClientList[clientID]
-										else:
-											pass	
+											if clientID in client_data.keys():
+												logging.info("delCheckMessage--> Something to Delete in client_data %s,%s\n"%(str(clientID),str(DAT)))
+												del client_data[clientID]
+
 										#clearing the commonStartedClientIDList. 
 										if clientID in commonStartedClientIDList:
 											logging.info("delCheckMessage--> Something to Delete in commonStartedClientIDList %s,%s\n"%(str(clientID),str(DAT)))
 											
 											index = commonStartedClientIDList.index(clientID)
 											del commonStartedClientIDList[index]
-										else:
-											pass	
+											
 
 
 
