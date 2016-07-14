@@ -367,7 +367,7 @@ def beforeJourneyTenminUpdate():
 			i = 0
 			while True:
 				if (len(beforeJourneyClientList.keys())>0):
-					
+
 					localDictbeforeJourneyupdate = client_data
 
 					for cid in beforeJourneyClientList.keys():
@@ -384,7 +384,6 @@ def beforeJourneyTenminUpdate():
 										i+=1
 									
 								except Exception as e:
-									print client_data,cid
 									logging.error("The beforeJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))
 	 
 									
@@ -530,11 +529,11 @@ def beforeJourney():
 		while True:
 			if (len(beforeJourneyClientList.keys())>0):
 				
-				localDict = client_data[cid]
+				
 
 				for cid in beforeJourneyClientList.keys():
 					if cid in commonClientIDList:
-						
+						localDict = client_data[cid]		
 
 						presentrouteTime =  datetime.datetime.now(pytz.timezone(localDict['timeZone']))
 
