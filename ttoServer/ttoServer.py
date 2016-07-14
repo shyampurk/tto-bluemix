@@ -306,7 +306,8 @@ def Alerts(clientID,alert):
 				
 		routeName = client_data[clientID]["routeName"]
 		
-		alertcursorproceed = False	
+		alertcursorproceed = False
+		length = -1	
 
 		try:		
 			#Alerts are in the ttobgcoll collection so getting the latest alerts for the route 
@@ -321,7 +322,7 @@ def Alerts(clientID,alert):
 
 		alertseverity = []
 		
-		if (alertcursorproceed == True):
+		if (alertcursorproceed == True and length != -1):
 			for i in range(length):
 				if nedoc['traffic']['incidents'][i]['type'] == 4:
 					
@@ -366,7 +367,8 @@ def beforeJourneyTenminUpdate():
 			i = 0
 			while True:
 				if (len(beforeJourneyClientList.keys())>0):
-
+					
+					localDictbeforeJourneyupdate = client_data
 
 					for cid in beforeJourneyClientList.keys():
 						numofclients = len(beforeJourneyClientList.keys())
@@ -374,7 +376,7 @@ def beforeJourneyTenminUpdate():
 						if cid in beforeJourneyClientList.keys():
 							if i<numofclients:
 								try:
-									if(int(datetime.datetime.now(pytz.timezone(client_data[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
+									if(int(datetime.datetime.now(pytz.timezone(localDictbeforeJourneyupdate[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
 										
 										if cid in client_data.keys():
 											client_data[cid].update({"everyTenminproceed":True})
@@ -407,13 +409,15 @@ def startedJourneyTenminUpdate():
 			i = 0
 			while True:
 				if (len(startedJourneyClientList.keys())>0):
+
+					localDictStartedJourneyupdate = client_data
 					
 					for cid in startedJourneyClientList.keys():
 						if cid in commonStartedClientIDList:	
 							numofclients = len(startedJourneyClientList.keys())
 							if i<numofclients:
 								try:	
-									if (int(datetime.datetime.now(pytz.timezone(client_data[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
+									if (int(datetime.datetime.now(pytz.timezone(localDictStartedJourneyupdate[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
 										
 										if cid in startedJourneyClientList.keys():
 											startedJourneyClientList[cid].update({"alertsentproceed":True})
@@ -489,7 +493,7 @@ def recommendationAlertFunc(recommtime,cid,pred_minutesReal):
 			
 			
 		except Exception as e:
-			logging.error("The error occured in internal delCheck is %s,%s\n"%(e,type(e)))	
+			logging.error("The error occured in internal recommendationAlertFunc is %s,%s\n"%(e,type(e)))	
 		
 		if (recommendationAlertIndex != -1):
 			val = int(recommendationAlertPredictions[recommendationAlertIndex]) * 60
@@ -525,9 +529,12 @@ def beforeJourney():
 
 		while True:
 			if (len(beforeJourneyClientList.keys())>0):
+				
+				localDict = client_data[cid]
+
 				for cid in beforeJourneyClientList.keys():
 					if cid in commonClientIDList:
-						localDict = client_data[cid]
+						
 
 						presentrouteTime =  datetime.datetime.now(pytz.timezone(localDict['timeZone']))
 

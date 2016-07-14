@@ -2,8 +2,7 @@ var g_message
 var g_current_time
 var g_selectedRoute
 var g_routePoints
-// var CID = PUBNUB.uuid().toString();
-var CID = 'new_chan';
+var CID = PUBNUB.uuid().toString();
 var app = {
 
     initialize: function() {
@@ -71,9 +70,9 @@ var app = {
 
             document.getElementById('arrTime').innerHTML =Server_message.arrival_time;
             var recommendation = Server_message.recommendation;
-            console.log(recommendation)
+            console.log("The receommendation we got from the server",recommendation)
             var pred_minutesReal_0 = recommendation[0].pred_minutesReal
-            console.log(pred_minutesReal_0)
+            // console.log(pred_minutesReal_0)
             if (recommendation.length <= 0){
                 alert("No Recommendation for the selected time !!!");
                 $("#backButton").click();
@@ -82,7 +81,7 @@ var app = {
                 var recommLength = 0;
                 for(var i = 0; i < recommendation.length; i++) {
                     recommDepnoteLength = recommendation[i].dep_note.split(" ").length;
-                    console.log(recommDepnoteLength);
+                    console.log("The recommendation Depnote length",recommDepnoteLength);
                     if (recommendation[i].dep_note.split(" ")[recommDepnoteLength-1] == "ontime")
                     {
                       console.log('ontime');
@@ -115,7 +114,6 @@ var app = {
             }
             var selectedRoute = document.getElementById('selectedRoute').innerHTML   
                 $("#recommendation_0").click(function(e){
-                      console.log("mytesting");
                       console.log(document.getElementById("recommendation_hTag_0").innerHTML);
                       var rec_depTime_0 = document.getElementById("recommendation_hTag_0").innerHTML
                       rec_depTime_0 = rec_depTime_0.split("::")[1] 
@@ -146,9 +144,9 @@ var app = {
     },
 
     openpopup: function(rec_depTime,selectedRoute,pred_minutesReal){
-        console.log(rec_depTime)
+        console.log("recommended departure time",rec_depTime)
         var selectedRecommendaionMessage = {"CID":CID,"requestType":4,"recommendedDepTime":rec_depTime ,"pred_minutesReal":pred_minutesReal};
-        console.log(selectedRecommendaionMessage)
+        console.log("The request for confirming the Departure time",selectedRecommendaionMessage)
         app.publish(selectedRecommendaionMessage);
         g_selectedRoute = selectedRoute
         g_routePoints = g_selectedRoute.split("To"); 
@@ -161,29 +159,27 @@ var app = {
     localTimeCalculation: function(selectedRoute){
         if (selectedRoute == "NEWARK To EDISON") {
             g_current_time = moment().tz("US/Eastern").format("YYYY-MM-DD HH:mm:ss");
-            console.log(g_current_time)
+            console.log("The route present time",g_current_time)
         }
         else if(selectedRoute == "BROOKLYN To DENVILLE"){
             g_current_time = moment().tz("US/Eastern").format("YYYY-MM-DD HH:mm:ss");
-            console.log(g_current_time)
+            console.log("The route present time",g_current_time)
         }
         else if(selectedRoute == "MOUNTZION RADIOLOGY CENTER To SF GENERAL HOSPITAL"){
             g_current_time = moment().tz("US/Pacific").format("YYYY-MM-DD HH:mm:ss");
-            console.log(g_current_time)
+            console.log("The route present time",g_current_time)
         }
         return g_current_time
     },
     timeCalculation: function(rec_depTime,selectedRoute){
 
         app.localTimeCalculation(selectedRoute);
-        console.log(selectedRoute)
-        console.log(g_current_time)
+        console.log("The selected route",selectedRoute)
         var ms = moment(rec_depTime,"YYYY-MM-DD HH:mm:ss").diff(moment(g_current_time,"YYYY-MM-DD HH:mm:ss"));
         var d = moment.duration(ms);
         var s = d.format("hh:mm:ss");
         var mm = d.format("mm");
         var ss = d.format("ss");
-        console.log(ss)
         app.flipclock(ss);
 
     },
@@ -195,6 +191,7 @@ var app = {
             app.localTimeCalculation(g_selectedRoute);
             var startNowMessage1 = {"CID":CID,"requestType":2,"startTime":g_current_time };
             app.publish(startNowMessage1);
+            console.log("The request message confirming to start the journey",startNowMessage1);
             document.getElementById('pointA').innerHTML = g_routePoints[0]
             document.getElementById('pointB').innerHTML = g_routePoints[1]
             $("#journeytrackingCounter").fadeOut("fast");
@@ -210,6 +207,8 @@ var app = {
                             app.localTimeCalculation(g_selectedRoute);
                             var startNowMessage2 = {"CID":CID,"requestType":2,"startTime":g_current_time};
                             app.publish(startNowMessage2);
+                            console.log("The request message confirming to start the journey",startNowMessage2);
+                            
                             document.getElementById('pointA').innerHTML = g_routePoints[0]
                             document.getElementById('pointB').innerHTML = g_routePoints[1]
                             $("#journeytrackingCounter").fadeOut("fast");
@@ -225,6 +224,7 @@ var app = {
     startNow: function(){
         app.localTimeCalculation(g_selectedRoute);
         var startNowMessage3 = {"CID":CID,"requestType":2,"startTime":g_current_time};
+        console.log("The request message confirming to start the journey",startNowMessage3);
         app.publish(startNowMessage3);
         document.getElementById('pointA').innerHTML = g_routePoints[0]
         document.getElementById('pointB').innerHTML = g_routePoints[1]
@@ -241,6 +241,7 @@ var app = {
     endJourney: function() {
         $(document).ready(function(){
             var endJourneyMessage = {"CID":CID,"requestType":3};
+            console.log("The request messag confirming to delete the client from the server",endJourneyMessage);
             app.publish(endJourneyMessage)
             $(':mobile-pagecontainer').pagecontainer('change', $('#mainpage'));
             $("#journeyTrackRecommendList").remove();
@@ -280,11 +281,11 @@ var app = {
                 if(g_message.responseType == 1){
                 	$(':mobile-pagecontainer').pagecontainer('change', $('#secondpage'));        
            
-                    console.log(g_message)
+                    console.log("The message from the server",g_message)
                     app.recommendation(g_message)
                 }
                 else if(g_message.responseType == 2){
-                    console.log(g_message)
+                    console.log("The message from the server for accident alerts",g_message)
                         $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
                             $("#recommendationNotification").fadeOut("fast");
                             $("#accidentNotification").fadeOut("fast");
@@ -296,7 +297,7 @@ var app = {
                     
                 }
                 else if(g_message.responseType == 3){
-                    console.log(g_message)
+                    console.log("The message from the server for recommendation alerts",g_message)
                         $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
                             $("#recommendationNotification").fadeOut("fast");
                             $("#accidentNotification").fadeOut("fast");
@@ -308,7 +309,7 @@ var app = {
                     
                 }
                 else if(g_message.responseType == 4){
-                    console.log(g_message)
+                    console.log("The message from the server for time out of range alerts",g_message)
                        
                         $(':mobile-pagecontainer').pagecontainer('change', $('#popuppage'));
                           
@@ -336,13 +337,13 @@ var app = {
         pubnub.publish({                                    
             channel : "ttotest1",
             message : App_message,
-            callback : function(m) {console.log("Successfully Sent Message!")},
+            callback : function(m) {console.log("publish function message-->"+"Successfully Sent Message!")},
             error : function(m) {
-                console.log("Message send failed - [" 
+                console.log("publish function message -->"+"Message send failed - [" 
                     +App_message+ "] - Retrying in 3 seconds!");
                 setTimeout(app.publish(App_message), 3000);}
         })
-        console.log(App_message)
+        console.log("The request message to the server",App_message)
     },
 };
 
