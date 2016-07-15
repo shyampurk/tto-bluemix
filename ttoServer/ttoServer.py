@@ -138,8 +138,8 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 			# This is to get the latest date in the mongodb
 			dateCursor = newttobackground.ttobgcoll.find({"route":client_data[clientID]['routeName']}).sort('recorddate', pymongo.DESCENDING).limit(Limit)
 			
-			for newarkedison_doc in dateCursor:
-					endDate = newarkedison_doc['recorddate']
+			for datedoc in dateCursor:
+					endDate = datedoc['recorddate']
 			dateproceed = True		
 		except Exception as e:
 			dateproceed = False
@@ -165,10 +165,10 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 				if (0<=hour <= 12 and 0<=day<=1):
 					
 					proceed = True
-					for nedoc in cursor:
-						 time.append(nedoc['time'])
-						 realtimeinminutes.append(nedoc['predictioninmins'])
-						 realtimeinsec.append(nedoc['predictioninsecs'])
+					for datadoc in cursor:
+						 time.append(datadoc['time'])
+						 realtimeinminutes.append(datadoc['predictioninmins'])
+						 realtimeinsec.append(datadoc['predictioninsecs'])
 				else:
 					if day < 0:
 						result = {"responseType":4,"message":"Desired Arrival Time is below 12 hours range"}
@@ -311,11 +311,11 @@ def Alerts(clientID,alert):
 
 		try:		
 			#Alerts are in the ttobgcoll collection so getting the latest alerts for the route 
-			for newarkedison_doc in newttobackground.ttobgcoll.find({"route":routeName}).sort('recorddate', pymongo.DESCENDING).limit(Limit):
-				endDate = newarkedison_doc['recorddate']
+			for alertdatedoc in newttobackground.ttobgcoll.find({"route":routeName}).sort('recorddate', pymongo.DESCENDING).limit(Limit):
+				endDate = alertdatedoc['recorddate']
 				
-			for nedoc in newttobackground.ttobgcoll.find({"route":routeName,"recorddate":endDate}):
-				length = len(nedoc['traffic']['incidents'])
+			for alertdoc in newttobackground.ttobgcoll.find({"route":routeName,"recorddate":endDate}):
+				length = len(alertdoc['traffic']['incidents'])
 			alertcursorproceed = True	
 		except Exception as e:
 			logging.error("The latestalertcursor error is %s,%s\n"%(e,type(e)))
@@ -324,10 +324,10 @@ def Alerts(clientID,alert):
 		
 		if (alertcursorproceed == True and length != -1):
 			for i in range(length):
-				if nedoc['traffic']['incidents'][i]['type'] == 4:
+				if alertdoc['traffic']['incidents'][i]['type'] == 4:
 					
-					alertList.append({"eventType":nedoc['traffic']['incidents'][i]['type'],"shortDesc":nedoc['traffic']['incidents'][i]['shortDesc']})
-					alertseverity.append(nedoc['traffic']['incidents'][i]['severity'])
+					alertList.append({"eventType":alertdoc['traffic']['incidents'][i]['type'],"shortDesc":alertdoc['traffic']['incidents'][i]['shortDesc']})
+					alertseverity.append(alertdoc['traffic']['incidents'][i]['severity'])
 					
 
 			if (len(alertseverity)>1):
@@ -351,7 +351,7 @@ def Alerts(clientID,alert):
 
 	except Exception as alertError:
 		logging.error("The error occured in alertError is %s,%s\n"%(alertError,type(alertError)))
-		logging.info(str(nedoc)+"\n")				
+		logging.info(str(alertdoc)+"\n")				
 
 
 
