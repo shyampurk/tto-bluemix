@@ -366,31 +366,33 @@ def beforeJourneyTenminUpdate():
 			global g_minit,g_sleepTime,g_divCompare
 			i = 0
 			while True:
-				if (len(beforeJourneyClientList.keys())>0):
+				if(int(datetime.datetime.now().strftime("%M"))%g_minit == g_divCompare):
+									
+					if (len(beforeJourneyClientList.keys())>0):
 
-					localDictbeforeJourneyupdate = client_data
+						localDictbeforeJourneyupdate = client_data
 
-					for cid in beforeJourneyClientList.keys():
-						numofclients = len(beforeJourneyClientList.keys())
-						
-						if cid in beforeJourneyClientList.keys():
-							if i<numofclients:
-								try:
-									if(int(datetime.datetime.now(pytz.timezone(localDictbeforeJourneyupdate[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
+						for cid in beforeJourneyClientList.keys():
+							numofclients = len(beforeJourneyClientList.keys())
+							
+							if cid in beforeJourneyClientList.keys():
+								if i<numofclients:
+									try:
+									# if(int(datetime.datetime.now(pytz.timezone(localDictbeforeJourneyupdate[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
 										
 										if cid in client_data.keys():
 											client_data[cid].update({"everyTenminproceed":True})
 										
 										i+=1
 									
-								except Exception as e:
-									logging.error("The beforeJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))
-	 
+									except Exception as e:
+										logging.error("The beforeJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))
+		 
 									
 
-							else:
-								i = 0
-								time.sleep(g_sleepTime)
+								else:
+									i = 0
+									time.sleep(g_sleepTime)
 				
 		except Exception as beforeJourneyTenminUpdateError:			
 			logging.error("The error occured in beforeJourneyTenminUpdateError is %s,%s\n"%(beforeJourneyTenminUpdateError,type(beforeJourneyTenminUpdateError)))
@@ -407,16 +409,18 @@ def startedJourneyTenminUpdate():
 			global g_minit,g_sleepTime,g_divCompare
 			i = 0
 			while True:
-				if (len(startedJourneyClientList.keys())>0):
+				if (int(datetime.datetime.now().strftime("%M"))%g_minit == g_divCompare):
+									
+					if (len(startedJourneyClientList.keys())>0):
 
-					localDictStartedJourneyupdate = client_data
-					
-					for cid in startedJourneyClientList.keys():
-						if cid in commonStartedClientIDList:	
-							numofclients = len(startedJourneyClientList.keys())
-							if i<numofclients:
-								try:	
-									if (int(datetime.datetime.now(pytz.timezone(localDictStartedJourneyupdate[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
+						localDictStartedJourneyupdate = client_data
+						
+						for cid in startedJourneyClientList.keys():
+							if cid in commonStartedClientIDList:	
+								numofclients = len(startedJourneyClientList.keys())
+								if i<numofclients:
+									try:	
+										# if (int(datetime.datetime.now(pytz.timezone(localDictStartedJourneyupdate[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
 										
 										if cid in startedJourneyClientList.keys():
 											startedJourneyClientList[cid].update({"alertsentproceed":True})
@@ -426,15 +430,15 @@ def startedJourneyTenminUpdate():
 										
 										i+=1	
 									
-								except Exception as e:
-									
-									logging.error("The startedJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))	
-											
+									except Exception as e:
+										
+										logging.error("The startedJourneyTenminUpdateinternalError Exception is %s,%s\n"%(e,type(e)))	
+												
 								
 
-							else:
-								i = 0
-								time.sleep(g_sleepTime)
+								else:
+									i = 0
+									time.sleep(g_sleepTime)
 
 		except Exception as startedJourneyTenminUpdateError:			
 			logging.error("The error occured in startedJourneyTenminUpdateError is %s,%s\n"%(startedJourneyTenminUpdateError,type(startedJourneyTenminUpdateError)))
@@ -644,14 +648,16 @@ def delCheck():
 			global g_sleepTime,g_minit
 			i=0
 			while True:
-				if len(client_data.keys())>0:
-					localDictDelcheck = client_data
-					for clientID in localDictDelcheck.keys():
+				if (int(datetime.datetime.now().strftime("%M"))%g_minit == 0):
+								
+					if len(client_data.keys())>0:
+						localDictDelcheck = client_data
+						for clientID in localDictDelcheck.keys():
 
-						numofclients = len(localDictDelcheck.keys())
-						if i<numofclients:
+							numofclients = len(localDictDelcheck.keys())
+							if i<numofclients:
 
-							if (int(datetime.datetime.now(pytz.timezone(localDictDelcheck[clientID]['timeZone'])).strftime("%M"))%g_minit == 0):
+							# if (int(datetime.datetime.now(pytz.timezone(localDictDelcheck[clientID]['timeZone'])).strftime("%M"))%g_minit == 0):
 								
 								if clientID in localDictDelcheck.keys():
 									DAT = datetime.datetime.strptime(str(localDictDelcheck[clientID]["arrivalTime"]), "%Y-%m-%d %H:%M:%S")	
@@ -691,19 +697,17 @@ def delCheck():
 									else:
 										# timerange over checking else part
 										logging.info("delCheckMessage--> Nothing to Delete%s,%s\n"%(str(clientID),str(DAT)))
-										pass
+										
 								else:
 									# client_data keys checking else part
 									pass
 								
 								i+=1
 											
+											
 							else:
-								# entered 10min interval checking else part
-								pass				
-						else:
-							i=0
-							time.sleep(g_sleepTime)		
+								i=0
+								time.sleep(g_sleepTime)		
 				
 		except Exception as delCheckError:
 			logging.error("The error occured in delCheckError is %s,%s\n"%(delCheckError,type(delCheckError)))				
