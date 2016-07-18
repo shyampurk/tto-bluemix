@@ -252,14 +252,14 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 									
 									checkedOnce.append(time[i])
 									'''ILLUSTRATION STEP 6.1,6.2 --> Derive the latest Recommendation'''
-									recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
+									recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min(s) early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
 									
 									'''ILLUSTRATION STEP 6.6(Operation) --> Move RRST 10min Forward '''
 									i+=1
 								
 								else:
 									'''ILLUSTRATION 6.4.1(Scenario 1) --> Return the latest late and early recommendations to the user'''
-									recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
+									recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min(s) early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
 									recommendationFlag = False
 							
 							'''ILLUSTRATION STEP 6.7(Condition) --> Checking for the late'''		
@@ -270,14 +270,14 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 									
 									checkedOnce.append(time[i])
 									'''ILLUSTRATION STEP 6.1,6.2 --> Derive the latest Recommendation'''
-									recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
+									recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min(s) late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
 									
 									'''ILLUSTRATION STEP 6.7(Operation) --> Move RRST 10min Backward'''
 									i-=1 
 								
 								else:
 									'''ILLUSTRATION 6.4.1(Scenario 2) --> Return the latest early and late recommendations to the user'''
-									recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
+									recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min(s) late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
 									recommendationFlag = False
 
 								
