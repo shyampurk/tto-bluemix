@@ -116,20 +116,23 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 
 		route_time = datetime.datetime.now(pytz.timezone(client_data[clientID]['timeZone'])) 
 		theorytimeinsecs = client_data[clientID]['theoryTime']
-		theorytimeinminutes = theorytimeinsecs/60.0 #Theory time in minutes
+		
+		'''TheoriticalTravelDuration(TTD)'''
+		TheoriticalTravelDuration = theorytimeinsecs/60.0 #Theory time in minutes
 		
 
-		if (theorytimeinminutes%10 >= 5):				
-			rem = 10.0-theorytimeinminutes%10
+		'''ILLUSTRATION STEP 1 --> Round Off TTD to nearest 10min time interval by introducing offset'''
+		if (TheoriticalTravelDuration%10 >= 5):
+			# OFFSET VALUE 
+			rem = 10.0-TheoriticalTravelDuration%10
 			
 		else:
-			rem = theorytimeinminutes%10
+			rem = TheoriticalTravelDuration%10
+			# OFFSET VALUE
 			rem = -rem
 			
-		reminminutes = rem
+		TimeDurationOffset = rem #(TDO)
 		
-
-		reminsecs =  rem*60
 		
 		Limit = 1
 
@@ -156,8 +159,9 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 			
 			realtimeinminutes = []
 			time = []
-			realtimeinsec = []
+			
 				
+			'''ILLUSTRATION STEP 2 --> Fetch 12hr advance prediction for the Selected Route'''	
 			try:
 				#This is to get the predictions from the result collection 
 				cursor = newttobackground.ttoresultcoll.find({"route":client_data[clientID]['routeName']}).sort('time', pymongo.ASCENDING).limit(150)
@@ -168,7 +172,7 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 					for datadoc in cursor:
 						 time.append(datadoc['time'])
 						 realtimeinminutes.append(datadoc['predictioninmins'])
-						 realtimeinsec.append(datadoc['predictioninsecs'])
+						
 				else:
 					if day < 0:
 						result = {"responseType":4,"message":"Desired Arrival Time is below 12 hours range"}
@@ -184,11 +188,13 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 				publish_handler(clientID,result)
 
 			timediffinminutes = []
-			timediffinsecs = []
+			
+
+			'''ILLUSTRATION STEP 3 --> Update all predicted time durations with the TDO value'''
+
 			if (proceed == True):
-				for i,j in zip(realtimeinsec,realtimeinminutes):
-					timediffinsecs.append((((float(i)-(theorytimeinsecs)))+reminsecs))
-					timediffinminutes.append((((float(j)-(theorytimeinminutes)))+reminminutes))
+				for i,j in realtimeinminutes:
+					timediffinminutes.append((((float(j)-(TheoriticalTravelDuration)))+TimeDurationOffset))
 				
 				DesiredArrivalTimeIndexInList = -1
 				
@@ -200,20 +206,24 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 					if DesiredArrivalTimeIndexInList != -1:		
 						pred_minutes = []
 						for i in range(len(timediffinminutes)):
-							pred_minutes.append(float(timediffinminutes[i]+theorytimeinminutes))
+							pred_minutes.append(float(timediffinminutes[i]+TheoriticalTravelDuration))
+
+						'''ILLUSTRATION STEP 4 --> Handled as part of the overall flow of STEP 6 '''
+						
+						'''ILLUSTRATION STEP 5 --> Calculate Recommendation Reference Start Time(RRST) from the DAT and TTD'''
+						
+						RecommendationRefferenceStartTime = int(DesiredArrivalTimeIndexInList-((TheoriticalTravelDuration+TimeDurationOffset)/10))
+						
 						
 
-						'''DISCUSSED METHOD'''
-						startpointIndex = int(DesiredArrivalTimeIndexInList-((theorytimeinminutes+reminminutes)/10))
+						i = RecommendationRefferenceStartTime
 						
-						
-
-						i = startpointIndex
 						recommendationFlag = True
 						checkedOnce = []
 						recommendationResult = {}
 						listlen = len(time)
 						j = 0
+
 						while (recommendationFlag == True):
 						
 							predictedArrivalTime = time[i]+datetime.timedelta(minutes=pred_minutes[i])
@@ -226,32 +236,47 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 							diff_minutes = (diff.days *24*60)+(diff.seconds/60)
 
 							
-							
+							'''ILLUSTRATION STEP 6.3 --> Checking for the onTime'''
 							if (diff_minutes == 0): #This condition is the top priority
-								pred_minutesReal = pred_minutes[i]-reminminutes
+								pred_minutesReal = pred_minutes[i]-TimeDurationOffset
+								
+								'''ILLUSTRATION STEP 6.3.1 --> Return the latest ontime recommendations to the user'''
 								recommendationResult.update({"onTime":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach ontime","pred_minutesReal":pred_minutesReal}})		
 								recommendationFlag = False
 
-							elif (0<=diff_minutes<=10):
-								pred_minutesReal = pred_minutes[i]-reminminutes
+							'''ILLUSTRATION STEP 6.6(Condition)--> Checking for the early'''	
+							elif (0<=diff_minutes<=10): 
+								pred_minutesReal = pred_minutes[i]-TimeDurationOffset
+								
 								if(time[i] not in checkedOnce):
 									
 									checkedOnce.append(time[i])
+									'''ILLUSTRATION STEP 6.1,6.2 --> Derive the latest Recommendation'''
 									recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
-									i+=1#This line should be here
+									
+									'''ILLUSTRATION STEP 6.6(Operation) --> Move RRST 10min Forward '''
+									i+=1
+								
 								else:
+									'''ILLUSTRATION 6.4.1(Scenario 1) --> Return the latest late and early recommendations to the user'''
 									recommendationResult.update({"Early":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min early"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})
 									recommendationFlag = False
 							
-
+							'''ILLUSTRATION STEP 6.7(Condition) --> Checking for the late'''		
 							else:
-								pred_minutesReal = pred_minutes[i]-reminminutes
+								pred_minutesReal = pred_minutes[i]-TimeDurationOffset
+								
 								if (time[i] not in checkedOnce):
 									
 									checkedOnce.append(time[i])
+									'''ILLUSTRATION STEP 6.1,6.2 --> Derive the latest Recommendation'''
 									recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
-									i-=1 #This line should be here
+									
+									'''ILLUSTRATION STEP 6.7(Operation) --> Move RRST 10min Backward'''
+									i-=1 
+								
 								else:
+									'''ILLUSTRATION 6.4.1(Scenario 2) --> Return the latest early and late recommendations to the user'''
 									recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
 									recommendationFlag = False
 
@@ -259,6 +284,7 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 						
 						recommresult = []
 						
+
 						for val in recommendationResult.keys():
 							recommresult.append(recommendationResult[val])
 						
@@ -267,13 +293,7 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 						logging.info("The sent message for the recommendationmessage%s\n"%(str(pub_dict)))
 							
 						client_data[clientID].update({"recommndsentproceed":False})
-						
-						# recommendedDepTimeAlgoFunc = []
-						# for i in range(len(recommresult)):
-						# 	recommendedDepTimeAlgoFunc.append(recommresult[i]["predictedDepartureTime"])
-
-
-						# return pub_dict,recommendedDepTimeAlgoFunc
+					
 						
 				except Exception as e:
 					logging.error("The error occured in recommalgoinnerError is %s,%s\n"%(e,type(e)))
