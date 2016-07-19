@@ -86,7 +86,7 @@ var app = {
                       console.log('The recommendation for the client is -->ontime it will reach');
                        
 
-                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgreen;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
+                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgreen;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted Departure Time => '+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted Arrival Time => '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
                    
                     }
 
@@ -94,7 +94,7 @@ var app = {
                     {
                         console.log('The recommendation for the client is -->early');
                         
-                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgreen;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
+                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:lightgreen;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted Departure Time => '+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted Arrival Time => '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
                    
                     }
 
@@ -102,7 +102,7 @@ var app = {
                     {
                         console.log('The recommendation for the client is -->late');
                         
-                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:#ff6666;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted DepartureTime ::'+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted ArrivalTime :: '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
+                    $("#journeyTrackRecommendList").append('<div id="recommendation_'+i+'" class="recommendation'+i+'" style="background-color:#ff6666;text-align:center;font-size:14px;padding:5px;width:95%;height:10%;border:2px solid #FFF;"><h5 id="recommendation_hTag_'+i+'">Predicted Departure Time => '+recommendation[i].predictedDepartureTime+'</h5><h5 id="predArrTime_'+i+'">Predicted Arrival Time => '+recommendation[i].predictedArrivalTime+'</h5><h5 id="recommendation_ptag'+i+'">'+recommendation[i].dep_note+'</h5></div>');
                        
                     }
                    
@@ -115,7 +115,7 @@ var app = {
                 $("#recommendation_0").click(function(e){
                       console.log(document.getElementById("recommendation_hTag_0").innerHTML);
                       var rec_depTime_0 = document.getElementById("recommendation_hTag_0").innerHTML
-                      rec_depTime_0 = rec_depTime_0.split("::")[1] 
+                      rec_depTime_0 = rec_depTime_0.split("=>")[1] 
                       var predArrTime_0 = document.getElementById("predArrTime_0").innerHTML
                       
                       var pred_minutesReal = recommendation[0].pred_minutesReal
@@ -124,7 +124,7 @@ var app = {
                 });
                 $("#recommendation_1").click(function(e){
                       var rec_depTime_1 = document.getElementById("recommendation_hTag_1").innerHTML
-                      rec_depTime_1 = rec_depTime_1.split("::")[1]
+                      rec_depTime_1 = rec_depTime_1.split("=>")[1]
                       var predArrTime_1 = document.getElementById("predArrTime_1").innerHTML
                       var pred_minutesReal = recommendation[1].pred_minutesReal
                       app.openpopup(rec_depTime_1,selectedRoute,pred_minutesReal);
@@ -132,7 +132,7 @@ var app = {
                 });
                 $("#recommendation_2").click(function(e){
                       var rec_depTime_2 = document.getElementById("recommendation_hTag_2").innerHTML
-                      rec_depTime_2 = rec_depTime_2.split("::")[1]
+                      rec_depTime_2 = rec_depTime_2.split("=>")[1]
                       var predArrTime_2 = document.getElementById("predArrTime_2").innerHTML
                       var pred_minutesReal = recommendation[2].pred_minutesReal
                       app.openpopup(rec_depTime_2,selectedRoute,pred_minutesReal);
