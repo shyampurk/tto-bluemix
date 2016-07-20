@@ -125,21 +125,36 @@ Set the PubNub Subscribe Key in function pubnubInit() Line 23 in [index.js](ttoA
 # Usage
 Assuming that the ttoBackground and ttoServer processes ar deployed, the user can test the application as follows.
 
-1. Launch the ttoApp on your Android mobile and you will be presented with this screen
+Step 1: Launch the ttoApp on your Android mobile and you will be presented with this screen
 <img src="/ttoScreenShots/appscreen.png" align="center" width="250" >
 
-2. Select a Route and a Desired Arrival Time and tap on "Submit".  Make sure that the Desired Arrival Time is within 12 hour range of the current local time of the selected route.
+Step 2: Select a Route and a Desired Arrival Time and tap on "Submit".  Make sure that the Desired Arrival Time is within 12 hour range of the current local time of the selected route.
 
 <img src="/ttoScreenShots/selection.png" align="center" width="250" >
 
-3. The ttoApp sends  request to ttoServer with runs a TTO Recommendation Engine and returns travel recommendations based on the selected route and desired arrival time.
+Step 3: The ttoApp sends  request to ttoServer with runs a TTO Recommendation Engine and returns travel recommendations based on the selected route and desired arrival time.
 
 <img src="/ttoScreenShots/recommendation.png" align="center" width="250" >
 
-4. Tap on one out of the presented recommendations and the ttoApp starts a countdown till the start of journey ( as per the Predicted Departure Time in the selected Recommendation).
+Step 4: Tap on one out of the presented recommendations and the ttoApp starts a countdown till the start of journey ( as per the Predicted Departure Time in the selected Recommendation).
 
 <img src="/ttoScreenShots/prejourneytracking.png" align="center" width="250" >
 
-5. 
+Step 5: During this time, the ttoServer may send realtime recommendation alerts , if there is a change in weather condition which alters the previous prediction, or if there is an incident reported along the route.
+
+<img src="/ttoScreenShots/recommendationalert.png" align="center" width="250" >
+
+Step 6: Tap on “Start Journey”. The ttoApp will enter the journey tracking phase. 
+
+<img src="/ttoScreenShots/journeytracking.png" align="center" width="250" >
+
+During this time, the ttoServer will send realtime recommendation alerts only if there is an incident reported along the route. 
+
+<img src="/ttoScreenShots/accident.png" align="center" width="250" >
+
+Step 7: Tap on End Journey to end the journey and then the ttoServer will stop sending any further alerts.
+
+
+
 
 
