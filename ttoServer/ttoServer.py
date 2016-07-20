@@ -109,7 +109,6 @@ Parameters 		:	DesiredArrivalTime - client's Desired ArrivalTime to the Destinat
 ****************************************************************************************'''			
 def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 	try:
-		
 		global newttobackground
 		proceed = False
 		
@@ -171,7 +170,7 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 					
 					proceed = True
 					for datadoc in cursor:
-						 time.append(datadoc['time'])
+						 time.append(datadoc['time'].replace(second=0))
 						 realtimeinminutes.append(datadoc['predictioninmins'])
 						
 				else:
@@ -226,7 +225,6 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 						j = 0
 
 						while (recommendationFlag == True):
-						
 							predictedArrivalTime = time[i]+datetime.timedelta(minutes=pred_minutes[i])
 							replaceapproach = predictedArrivalTime.replace(tzinfo=pytz.timezone(client_data[clientID]['timeZone']))
 							zone = pytz.timezone(client_data[clientID]["timeZone"])
@@ -397,7 +395,6 @@ def beforeJourneyTenminUpdate():
 							if cid in beforeJourneyClientList.keys():
 								if i<numofclients:
 									try:
-									# if(int(datetime.datetime.now(pytz.timezone(localDictbeforeJourneyupdate[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
 										
 										if cid in client_data.keys():
 											client_data[cid].update({"everyTenminproceed":True})
@@ -439,7 +436,6 @@ def startedJourneyTenminUpdate():
 								numofclients = len(startedJourneyClientList.keys())
 								if i<numofclients:
 									try:	
-										# if (int(datetime.datetime.now(pytz.timezone(localDictStartedJourneyupdate[cid]['timeZone'])).strftime("%M"))%g_minit == g_divCompare):
 										
 										if cid in startedJourneyClientList.keys():
 											startedJourneyClientList[cid].update({"alertsentproceed":True})
@@ -676,7 +672,6 @@ def delCheck():
 							numofclients = len(localDictDelcheck.keys())
 							if i<numofclients:
 
-							# if (int(datetime.datetime.now(pytz.timezone(localDictDelcheck[clientID]['timeZone'])).strftime("%M"))%g_minit == 0):
 								
 								if clientID in localDictDelcheck.keys():
 									DAT = datetime.datetime.strptime(str(localDictDelcheck[clientID]["arrivalTime"]), "%Y-%m-%d %H:%M:%S")	
@@ -756,7 +751,6 @@ def tto_callback(message,channel):
 
 					routeName = str(message['routeName'])#only in requesttype 1 we will get it
 					# adding necessary client data
-					# client_data[clientID] = {"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":str(message['arrivalTime']),"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False}	
 					
 					if not client_data.has_key(clientID):
 						client_data.setdefault(clientID,{"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":str(message['arrivalTime']),"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False})	
@@ -781,7 +775,6 @@ def tto_callback(message,channel):
 					if clientID not in commonStartedClientIDList:
 						commonStartedClientIDList.append(clientID)
 					
-					# startedJourneyClientList.update({clientID:{"clientID":clientID,"recommendedTime":startTime}})
 					if not startedJourneyClientList.has_key(clientID):
 						startedJourneyClientList.setdefault(clientID,{"clientID":clientID,"recommendedTime":arrivalTime})
 					
@@ -791,8 +784,7 @@ def tto_callback(message,channel):
 					if clientID in commonClientIDList:
 						index = commonClientIDList.index(clientID)
 						del commonClientIDList[index]
-						# del beforeJourneyClientList[message['CID']]
-					
+						
 					# updating alertsentproceed so the alerts will work for the client
 					client_data[clientID].update({"alertsentproceed":True}) 
 						
@@ -813,7 +805,6 @@ def tto_callback(message,channel):
 					zone = pytz.timezone(client_data[clientID]["timeZone"])
 					recommendedDepTime = zone.localize(recommendedDepTime)
 					
-					# beforeJourneyClientList[clientID] = {"clientID":clientID,"recommendedDepTime":recommendedDepTime,"pred_minutesReal":message['pred_minutesReal']}				
 					
 					if not beforeJourneyClientList.has_key(clientID):
 						beforeJourneyClientList.setdefault(clientID,{"clientID":clientID,"recommendedDepTime":recommendedDepTime,"pred_minutesReal":message['pred_minutesReal']})
@@ -831,7 +822,6 @@ def tto_callback(message,channel):
 
 					routeName = str(message['routeName'])#only in requesttype 1 we will get it
 					# adding necessary client data
-					# client_data[clientID] = {"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":str(message['arrivalTime']),"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False}	
 					
 					if not client_data.has_key(clientID):
 						client_data.setdefault(clientID,{"clientID":clientID,"timeZone":zone_ttimedct[routeName][0],"theoryTime":zone_ttimedct[routeName][1],"arrivalTime":str(message['arrivalTime']),"routeName":routeName,"everyTenminproceed":False,"recommndsentproceed":True,"alertsentproceed":False})
@@ -842,7 +832,6 @@ def tto_callback(message,channel):
 					# adding timezone using localizing technique
 					zone = pytz.timezone(client_data[clientID]["timeZone"])
 					arrivalTime = zone.localize(arrivalTime)
-					
 					recommendationAlgoFunc(arrivalTime,clientID)#calling the recommendation algorithm function
 		else:
 			pass		
