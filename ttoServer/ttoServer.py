@@ -259,21 +259,25 @@ def recommendationAlgoFunc(DesiredArrivalTime,clientID):
 							
 							# ILLUSTRATION STEP 6.7(Condition) --> Checking for the late		
 							else:
-								pred_minutesReal = pred_minutes[i]-TimeDurationOffset
-								
-								if (time[i] not in checkedOnce):
+								if diff_minutes <0:
+									pred_minutesReal = pred_minutes[i]-TimeDurationOffset
 									
-									checkedOnce.append(time[i])
-									# ILLUSTRATION STEP 6.1,6.2 --> Derive the latest Recommendation
-									recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min(s) late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
+									if (time[i] not in checkedOnce):
+										
+										checkedOnce.append(time[i])
+										# ILLUSTRATION STEP 6.1,6.2 --> Derive the latest Recommendation
+										recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min(s) late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
+										
+										# ILLUSTRATION STEP 6.7(Operation) --> Move RRST 10min Backward
+										i-=1 
 									
-									# ILLUSTRATION STEP 6.7(Operation) --> Move RRST 10min Backward
-									i-=1 
+									else:
+										# ILLUSTRATION 6.4.1(Scenario 2) --> Return the latest early and late recommendations to the user
+										recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min(s) late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
+										recommendationFlag = False
 								
 								else:
-									# ILLUSTRATION 6.4.1(Scenario 2) --> Return the latest early and late recommendations to the user
-									recommendationResult.update({"Late":{"predictedDepartureTime":str(time[i].replace(second=0,tzinfo=None)),"predictedArrivalTime":str(predictedArrivalTime.replace(tzinfo=None)),"dep_note":"You will reach %s min(s) late"%(abs(diff_minutes)),"pred_minutesReal":pred_minutesReal}})		
-									recommendationFlag = False
+									i+=1	
 
 								
 						
@@ -584,9 +588,9 @@ def beforeJourney():
 									# means comeback after 10mins
 
 									if val > 0:
-										message = {"responseType":3,"message":"You should start %smin after %s"%(int(val),str(recommendedTime.replace(second=0,tzinfo=None)))}
+										message = {"responseType":3,"message":"You should start %smin(s) after %s"%(int(val),str(recommendedTime.replace(second=0,tzinfo=None)))}
 									if val < 0:	
-										message = {"responseType":3,"message":"You should start %smin earlier than %s "%(abs(int(val)),str(recommendedTime.replace(second=0,tzinfo=None)))}
+										message = {"responseType":3,"message":"You should start %smin(s) earlier than %s "%(abs(int(val)),str(recommendedTime.replace(second=0,tzinfo=None)))}
 									logging.info("recommendationAlert -->%s"%(str(message)))
 									publish_handler(cid,message)
 								else:
