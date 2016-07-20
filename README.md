@@ -136,11 +136,11 @@ Step 3: The ttoApp sends  request to ttoServer with runs a TTO Recommendation En
 
 <img src="/ttoScreenShots/recommendation.png" align="center" width="250" >
 
-Step 4: Tap on one out of the presented recommendations and the ttoApp starts a countdown till the start of journey ( as per the Predicted Departure Time in the selected Recommendation).
+Step 4: Tap on one out of the presented recommendations and the ttoApp starts a countdown till the start of journey ( as per the Predicted Departure Time in the selected Recommendation). This is the pre journey phase of ttoApp.
 
 <img src="/ttoScreenShots/prejourneytracking.png" align="center" width="250" >
 
-Step 5: During this time, the ttoServer may send realtime recommendation alerts , if there is a change in weather condition which alters the previous prediction, or if there is an incident reported along the route.
+Step 5: During this time, the ttoServer may send realtime recommendation alerts , if there is a change in weather condition which alters the previous prediction, or if there is an incident reported along the route. The Yahoo Weather API provides a near constant forecast for the entire day and typically does not give enough data to indicate changes in weather during a day. Hence to simulate a recommendation alert for change in weather , we have used a induce script. The details of are under the "Inducing real-time recommendations" sections below. 
 
 <img src="/ttoScreenShots/recommendationalert.png" align="center" width="250" >
 
@@ -156,5 +156,16 @@ Step 7: Tap on End Journey to end the journey and then the ttoServer will stop s
 
 
 
+# Inducing real-time recommendations
 
+Since the public Yahoo Weather API has a limitation of not providing hourly variations in weather, we have to induce a weather change in our ttoBackground captured data so that we can generate modified predictions for travel duration and issue real-time advisory alerts to the users. 
 
+For this purpose we have written a induce script which can be used to change the weather and temperature of a selected route ( for both source and destination place of the route ) . This script should be run when the user is in pre-journey trackign stage (Step 4 under the Usage section above). 
+
+The induce script is located under [ttoTest](ttoTest) 
+
+Here is how the induce script is executed.
+
+<img src="/ttoScreenShots/induceScript.gif" align="center" width="800" >
+
+Make sure to point to the correct MongoDB instance before executing this script, by changing the variable uri at Line 17 as per the Step 2 of "Deployment of ttoBackground Process" section above.
