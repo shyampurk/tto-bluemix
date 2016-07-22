@@ -55,12 +55,12 @@ Follow the steps below for running ttoBackground process
 
   - Line 23 : For the value of variable uri change it to the following format
     
-      mongodb://<dbuser>:<dbpassword>@<dburi>/newttobackground
+            mongodb://<dbuser>:<dbpassword>@<dburi>/newttobackground
     
-      where
-            dbuser       : Your username for mLab
-            dbpassword   : Your password for mLab
-            dburi        : The URI assigned for your hosted MongnDB Database. 
+            where
+                  dbuser       : Your username for mLab
+                  dbpassword   : Your password for mLab
+                  dburi        : The URI assigned for your hosted MongnDB Database. 
 
 3. Open the [bd_scikit.py](ttoBackground/bd_scikit.py) and perform the following modifications
 
