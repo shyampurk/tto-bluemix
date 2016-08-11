@@ -36,9 +36,9 @@ This application has four main components.
 
 3. You must have an PubNub Subscription
  
-4. You must have a MapQuest subscription
+4. You must have a [MapQuest](https://developer.mapquest.com/) subscription
 
-5. You must have a subscription for Yahoo weather API
+5. You must have a subscription for [Yahoo weather API](https://developer.yahoo.com/weather/)
 
 6. You must have a cloned working copy of this repository 
 
@@ -104,11 +104,14 @@ Follow the steps below for hosting ttoServer on IBM Bluemix
           dburi        : The URI assigned for your hosted MongnDB Database.
       
       
-    Change the PubNub keys in Line 17,18 with your PubNub subscription keys.
+      
+2. Change the PubNub keys in Line 17,18 with your PubNub subscription keys.
 
-2. Login to Bluemix console via cf tool and select the space.
-3. Change directory to the ttoServer under the cloned Github repository.
-4. Run the following command to push the application code to Bluemix
+3. Login to Bluemix console via cf tool and select the space.
+
+4. Change directory to the ttoServer under the cloned Github repository.
+
+5. Run the following command to push the application code to Bluemix
 
             cf push
 
@@ -122,9 +125,9 @@ Follow the standard build procedures for building the APK package for this andro
 
 Before building , ensure that you select the PubNub keys as follows and ensure that the keys used in ttoApp are same as the ones used in ttoServer.
 
-Set the PubNub Publish Key in function pubnubInit() Line 22 in [index.js](ttoApp/www/js/index.js)
+            Set the PubNub Publish Key in function pubnubInit() Line 22 in [index.js](ttoApp/www/js/index.js)
 
-Set the PubNub Subscribe Key in function pubnubInit() Line 23 in [index.js](ttoApp/www/js/index.js)
+            Set the PubNub Subscribe Key in function pubnubInit() Line 23 in [index.js](ttoApp/www/js/index.js)
 
 
 # Usage
