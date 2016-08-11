@@ -136,7 +136,7 @@ Before building , ensure that you select the PubNub keys as follows and ensure t
             Set the PubNub Subscribe Key in function pubnubInit() Line 23 in [index.js](ttoApp/www/js/index.js)
 
 
-# Usage
+# TTO App User Flow
 Assuming that the ttoBackground and ttoServer processes ar deployed, the user can test the application as follows.
 
 Step 1: Launch the ttoApp on your Android mobile and you will be presented with this screen
