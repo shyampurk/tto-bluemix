@@ -31,7 +31,8 @@ count = 4320
 Limit = 1
 Day_List = ['','Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 
-
+mq_directions_key = "" # Your mapquest given api key
+mq_traffic_key = "" #  Your mapquest given api key
 
 '''****************************************************************************************
 Function Name 	:	function_routenewarkedison  (Algorithm operation)
@@ -81,7 +82,7 @@ def function_routenewarkedison():
 				# DIRECTIONS API
 				while(neretry1 <=2):
 					try:
-						newark_edison_api = requests.get('http://www.mapquestapi.com/directions/v2/route?key=AnGMNiGt9WoQo6yaOiJgeRkFlYAIHTGU&from=40.731507,-74.174388&to=40.525525,-74.388231&doReverseGeocode=false')
+						newark_edison_api = requests.get('http://www.mapquestapi.com/directions/v2/route?key='+mq_directions_key+'&from=40.731507,-74.174388&to=40.525525,-74.388231&doReverseGeocode=false')
 						logging.info( "ne directions api status %s and reason %s "%(newark_edison_api.status_code,newark_edison_api.reason))
 						neretry1 = 3
 						newark_edison_data =  newark_edison_api.text
@@ -153,7 +154,7 @@ def function_routenewarkedison():
 				
 				while (neretry4<=2):
 					try:
-						newarkedison_incidents_api = requests.get('http://www.mapquestapi.com/traffic/v2/incidents?key=0BLeZWB9UiKqUXD8eGtLbwOoLAcd3Prh&boundingBox=40.7467527,-74.2154055,40.5382588,-74.4480655&filters=construction,incidents,congestion,events&inFormat=kvp&outFormat=json')
+						newarkedison_incidents_api = requests.get('http://www.mapquestapi.com/traffic/v2/incidents?key='+mq_traffic_key+'&boundingBox=40.7467527,-74.2154055,40.5382588,-74.4480655&filters=construction,incidents,congestion,events&inFormat=kvp&outFormat=json')
 						logging.info( "ne incidents api status %s and reason %s"%(newarkedison_incidents_api.status_code,newarkedison_incidents_api.reason))
 						neretry4=3
 						newarkedison_data = newarkedison_incidents_api.text
@@ -282,9 +283,7 @@ def function_routenewarkedison():
 
 					else:
 						pass
-						''' This is an important exception need to concentrated because if one has no proper val for that particular zone
-						what will be the prediction for the 12 hr ahead for that particular zone we have to say we dont have data or we can show the 
-						previous one'''
+						
 
 						
 
@@ -387,7 +386,7 @@ def function_routebrooklyndenville():
 				#DIRECTIONS API
 				while (bdretry1<=2):
 					try:
-						brooklyn_denville_api = requests.get('http://www.mapquestapi.com/directions/v2/route?key=AnGMNiGt9WoQo6yaOiJgeRkFlYAIHTGU&from=40.692529,-73.990996&to=40.889066,-74.4786&doReverseGeocode=false')
+						brooklyn_denville_api = requests.get('http://www.mapquestapi.com/directions/v2/route?key='+mq_directions_key+'&from=40.692529,-73.990996&to=40.889066,-74.4786&doReverseGeocode=false')
 						logging.info( "bd directions api status %s and reason %s"%(brooklyn_denville_api.status_code,brooklyn_denville_api.reason))
 						bdretry1 = 3
 						brooklyn_denville_data = brooklyn_denville_api.text
@@ -465,7 +464,7 @@ def function_routebrooklyndenville():
 				
 				while(bdretry4<=2):
 					try:
-						brooklyndenville_incidents_api=requests.get('http://www.mapquestapi.com/traffic/v2/incidents?key=0BLeZWB9UiKqUXD8eGtLbwOoLAcd3Prh&boundingBox=40.6529731,-73.9461878,40.8842586,-74.5561109&filters=construction,incidents,congestion,events&inFormat=kvp&outFormat=json')
+						brooklyndenville_incidents_api=requests.get('http://www.mapquestapi.com/traffic/v2/incidents?key='+mq_traffic_key+'&boundingBox=40.6529731,-73.9461878,40.8842586,-74.5561109&filters=construction,incidents,congestion,events&inFormat=kvp&outFormat=json')
 						logging.info( "bd incidents api status %s and reason %s"%(brooklyndenville_incidents_api.status_code,brooklyndenville_incidents_api.reason))
 						bdretry4=3
 						brooklyndenville_data = brooklyndenville_incidents_api.text
@@ -592,9 +591,7 @@ def function_routebrooklyndenville():
 
 					else:
 						pass
-						''' This is an important exception need to concentrated because if one has no proper val for that particular zone
-						what will be the prediction for the 12 hr ahead for that particular zone we have to say we dont have data or we can show the 
-						previous one'''
+						
 
 
 
@@ -688,7 +685,7 @@ def function_routesanfrancisco():
 			try:
 				while (sfretry1 <=2):
 					try:
-						sanfrancisco_api = requests.get('http://www.mapquestapi.com/directions/v2/route?key=AnGMNiGt9WoQo6yaOiJgeRkFlYAIHTGU&from=37.786452,-122.440168&to=37.749202,-122.41575&doReverseGeocode=false')
+						sanfrancisco_api = requests.get('http://www.mapquestapi.com/directions/v2/route?key='+mq_directions_key+'&from=37.786452,-122.440168&to=37.749202,-122.41575&doReverseGeocode=false')
 						logging.info( "sf directions api status %s and reason %s "%(sanfrancisco_api.status_code,sanfrancisco_api.reason))
 						sfretry1 = 3
 						sanfrancisco_data = sanfrancisco_api.text
@@ -737,7 +734,7 @@ def function_routesanfrancisco():
 
 				while (sfretry3<=2):	
 					try:
-						sanfrancisco_incidents_api=requests.get('http://www.mapquestapi.com/traffic/v2/incidents?key=0BLeZWB9UiKqUXD8eGtLbwOoLAcd3Prh&boundingBox=37.78461,-122.4415687,37.7563513,-122.4069454&filters=construction,incidents,congestion,events&inFormat=kvp&outFormat=json')
+						sanfrancisco_incidents_api=requests.get('http://www.mapquestapi.com/traffic/v2/incidents?key='+mq_traffic_key+'&boundingBox=37.78461,-122.4415687,37.7563513,-122.4069454&filters=construction,incidents,congestion,events&inFormat=kvp&outFormat=json')
 						logging.info( "sf incidents api status %s and reason %s"%(sanfrancisco_incidents_api.status_code,sanfrancisco_incidents_api.reason))
 						sfretry3=3
 						sanfrancisco_data = sanfrancisco_incidents_api.text
@@ -858,9 +855,7 @@ def function_routesanfrancisco():
 
 					else:
 						pass
-						''' This is an important exception need to concentrated because if one has no proper val for that particular zone
-					what will be the prediction for the 12 hr ahead for that particular zone we have to say we dont have data or we can show the 
-					previous one'''		
+								
 			except Exception as e:
 				logging.error("ttoopvalcoll upload error in sanfrancisco %s,%s"%(e,type(e)))		
 
