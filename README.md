@@ -35,8 +35,12 @@ This application has four main components.
 2. You must have IBM Bluemix Account
 
 3. You must have an PubNub Subscription
+ 
+4. You must have a MapQuest subscription
 
-4. You must have a cloned working copy of this repository 
+5. You must have a subscription for Yahoo weather API
+
+6. You must have a cloned working copy of this repository 
 
 
 ## Deployment of ttoBackground Process
@@ -105,7 +109,8 @@ Follow the steps below for hosting ttoServer on IBM Bluemix
 2. Login to Bluemix console via cf tool and select the space.
 3. Change directory to the ttoServer under the cloned Github repository.
 4. Run the following command to push the application code to Bluemix
-    cf push
+
+            cf push
 
 Once successfully pushed, the server application will be automatically started. You can check its state in your Bluemix dashboard and see that its state is set to 'Running'.
 
