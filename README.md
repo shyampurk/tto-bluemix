@@ -34,13 +34,11 @@ This application has four main components.
       
 2. You must have IBM Bluemix Account
 
-3. You must have an PubNub Subscription
+3. You must have an PubNub subscription
  
 4. You must have a [MapQuest](https://developer.mapquest.com/) subscription
 
-5. You must have a subscription for [Yahoo weather API](https://developer.yahoo.com/weather/)
-
-6. You must have a cloned working copy of this repository 
+5. You must have a cloned working copy of this repository 
 
 
 ## Deployment of ttoBackground Process
@@ -57,7 +55,15 @@ Follow the steps below for running ttoBackground process
 
 2. Open the ttoBackground [source file](ttoBackground/ttoBackground.py) and perform the following modifications
 
-  - Line 23 : For the value of variable uri change it to the following format
+  - Line 10 : For the value of variable "mq_traffic_key", set it to your MapQuest subscription key.
+  
+  - Line 11 : For the value of variable "mq_incident_key", set it to your MapQuest subscription key.
+  
+            Note : To avoid API call limits for a trial subscription, we have used separate MapQuest keys 
+            for getting traffic and incident data. If you have a paid subscription, then the same key can
+            be used for both purposes. 
+
+  - Line 23 : For the value of variable "uri", change it to the following format
     
             mongodb://<dbuser>:<dbpassword>@<dburi>/newttobackground
     
@@ -68,7 +74,7 @@ Follow the steps below for running ttoBackground process
 
 3. Open the [bd_scikit.py](ttoBackground/bd_scikit.py) and perform the following modifications
 
-  - Line 25 : For the value of variable uri change it to the following format
+  - Line 25 : For the value of variable "uri", change it to the following format
     
             mongodb://<dbuser>:<dbpassword>@<dburi>/newttobackground
     
@@ -177,3 +183,7 @@ Here is how the induce script is executed.
 <img src="/ttoScreenShots/induceScript.gif" align="center" width="800" >
 
 Make sure to point to the correct MongoDB instance before executing this script, by changing the variable uri at Line 17 as per the Step 2 of "Deployment of ttoBackground Process" section above.
+
+# Feedback & Issues
+
+If you have any feedback or issues in setting up and running this application as per the steps given above, please raise a issue under this repository.
