@@ -55,12 +55,12 @@ Follow the steps below for running ttoBackground process
 
 2. Open the ttoBackground [source file](ttoBackground/ttoBackground.py) and perform the following modifications
 
-  - Line 10 : For the value of variable "mq_traffic_key", set it to your MapQuest subscription key.
+  - Line 34 : For the value of variable "mq_directions_key", set it to your MapQuest subscription key.
   
-  - Line 11 : For the value of variable "mq_incident_key", set it to your MapQuest subscription key.
+  - Line 35 : For the value of variable "mq_traffic_key", set it to your MapQuest subscription key.
   
-            Note : To avoid API call limits for a trial subscription, we have used separate MapQuest keys 
-            for getting traffic and incident data. If you have a paid subscription, then the same key can
+            Note : To avoid API call limits for a trial subscription, we have used separate subscription keys 
+            for getting direction and traffic data from MapQuest. If you have a paid subscription, then the same key can
             be used for both purposes. 
 
   - Line 23 : For the value of variable "uri", change it to the following format
