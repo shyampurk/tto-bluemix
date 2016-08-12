@@ -129,11 +129,11 @@ Thw ttoApp source code is located under the [ttoApp](ttoApp) directory of this r
 
 Follow the standard build procedures for building the APK package for this android App.
 
-Before building , ensure that you select the PubNub keys as follows and ensure that the keys used in ttoApp are same as the ones used in ttoServer.
+Before building , ensure that you type in the PubNub keys in the following lines and ensure that the keys used in ttoApp are same as the ones used in ttoServer.
 
-            Set the PubNub Publish Key in function pubnubInit() Line 22 in [index.js](ttoApp/www/js/index.js)
+1. Line 22: In [index.js](ttoApp/www/js/index.js), set the PubNub Publish Key in function pubnubInit() 
 
-            Set the PubNub Subscribe Key in function pubnubInit() Line 23 in [index.js](ttoApp/www/js/index.js)
+2. Line 23: In [index.js](ttoApp/www/js/index.js), set the PubNub Subscribe Key in function pubnubInit() 
 
 
 # TTO App User Flow
